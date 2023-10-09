@@ -92,7 +92,7 @@ body {
 }
 
 #game > #build {
-    background: #e36245;
+    background: peru;
 }
 
 #game > #build > .title {
@@ -100,6 +100,18 @@ body {
 }
 
 #game > #build > .desc {
+    grid-column-end: span 4;
+}
+
+#game > #combat {
+    background: #e36245;
+}
+
+#game > #combat > .title {
+    grid-column-end: span 4;
+}
+
+#game > #combat > .desc {
     grid-column-end: span 4;
 }
 
