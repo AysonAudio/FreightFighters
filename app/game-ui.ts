@@ -4,6 +4,10 @@ type GameUiCache = {
     gridElem: HTMLDivElement;
     /** A panel with building details and options. */
     buildPanelElem: HTMLDivElement;
+    /** A bar with enemy cards. */
+    fightElem: HTMLDivElement;
+    /** An enemy card template. */
+    enemyTemplate: HTMLTemplateElement;
 };
 
 /** A function that needs access to a global variable. */
@@ -18,6 +22,8 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
         const cache: GameUiCache = {
             gridElem: document.body.querySelector("#game > .grid"),
             buildPanelElem: document.body.querySelector("#game > #build"),
+            fightElem: document.body.querySelector("#game > #fight"),
+            enemyTemplate: document.body.querySelector("#enemy"),
         };
 
         return (func) => {
@@ -44,4 +50,11 @@ export const InitGrid: () => void = CACHE((cache: GameUiCache) => {
     for (const buttonElem of cache.gridElem
         .children as HTMLCollectionOf<HTMLButtonElement>)
         buttonElem.onclick = () => ShowPanel();
+});
+
+/**
+ * Create enemy card in #fight.
+ */
+export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
+    cache.fightElem.appendChild(cache.enemyTemplate.content.cloneNode(true));
 });
