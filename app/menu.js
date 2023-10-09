@@ -2,13 +2,14 @@
  * A decorator factory.
  * Manages one global {@link MenuCache} object and passes it to functions.
  */
-const MENU = (() => {
-    const globalMenuCache = {
-        mainMenuElem: document.querySelector("#main-menu"),
-        playGameElem: document.querySelector("#main-menu > .buttons > .play"),
+const CACHE = (() => {
+    const cache = {
+        mainMenuElem: document.body.querySelector("#main-menu"),
+        playElem: document.body.querySelector("#main-menu > .buttons > .play"),
+        gameElem: document.body.querySelector("#game"),
     };
     return (func) => {
-        return (...args) => func(globalMenuCache, ...args);
+        return (...args) => func(cache, ...args);
     };
 })();
 // ========================================================================== //
@@ -16,15 +17,14 @@ const MENU = (() => {
  * Hide Main Menu.
  * Unhide game.
  */
-const PlayGame = MENU((cache) => {
-    if (cache.mainMenuElem)
-        cache.mainMenuElem.style.display = "none";
+const PlayGame = CACHE((cache) => {
+    cache.mainMenuElem.style.display = "none";
+    cache.gameElem.style.display = "";
 });
 // ========================================================================== //
 /**
  * Init buttons.
  */
-export const InitMenu = MENU((cache) => {
-    if (cache.playGameElem)
-        cache.playGameElem.onclick = () => PlayGame();
+export const InitMenu = CACHE((cache) => {
+    cache.playElem.onclick = () => PlayGame();
 });
