@@ -1,26 +1,29 @@
-/** All global menu variables to cache when the game is loaded. */
+/** All global variables to cache when the game is loaded. */
 type MenuCache = {
     /** Main Menu container elem. Hidden when Play Game is clicked. */
-    mainMenuElem: HTMLDivElement | null;
+    mainMenuElem: HTMLDivElement;
     /** Play Game button. */
-    playGameElem: HTMLButtonElement | null;
+    playElem: HTMLButtonElement;
+    /** Game container elem. Unhidden when Play Game is clicked. */
+    gameElem: HTMLDivElement;
 };
 
-/** A function that needs access to a global menu variable. */
-type GameFunc<Return> = (cache: MenuCache, ...args) => Return;
+/** A function that needs access to a global variable. */
+type MenuFunc<Return> = (cache: MenuCache, ...args) => Return;
 
 /**
  * A decorator factory.
  * Manages one global {@link MenuCache} object and passes it to functions.
  */
-const MENU: <Return>(func: GameFunc<Return>) => (...args) => Return = (() => {
-    const globalMenuCache: MenuCache = {
-        mainMenuElem: document.querySelector("#main-menu"),
-        playGameElem: document.querySelector("#main-menu > .buttons > .play"),
+const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
+    const cache: MenuCache = {
+        mainMenuElem: document.body.querySelector("#main-menu"),
+        playElem: document.body.querySelector("#main-menu > .buttons > .play"),
+        gameElem: document.body.querySelector("#game"),
     };
 
     return (func) => {
-        return (...args) => func(globalMenuCache, ...args);
+        return (...args) => func(cache, ...args);
     };
 })();
 
@@ -30,8 +33,9 @@ const MENU: <Return>(func: GameFunc<Return>) => (...args) => Return = (() => {
  * Hide Main Menu.
  * Unhide game.
  */
-const PlayGame: () => void = MENU((cache: MenuCache) => {
-    if (cache.mainMenuElem) cache.mainMenuElem.style.display = "none";
+const PlayGame: () => void = CACHE((cache: MenuCache) => {
+    cache.mainMenuElem.style.display = "none";
+    cache.gameElem.style.display = "";
 });
 
 // ========================================================================== //
@@ -39,6 +43,6 @@ const PlayGame: () => void = MENU((cache: MenuCache) => {
 /**
  * Init buttons.
  */
-export const InitMenu: () => void = MENU((cache: MenuCache) => {
-    if (cache.playGameElem) cache.playGameElem.onclick = () => PlayGame();
+export const InitMenu: () => void = CACHE((cache: MenuCache) => {
+    cache.playElem.onclick = () => PlayGame();
 });
