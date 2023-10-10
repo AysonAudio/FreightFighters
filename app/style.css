@@ -74,6 +74,22 @@ body {
     font-family: "Young Serif", serif;
 }
 
+#game > .panel > .title {
+    grid-column-end: span 4;
+    font-size: 3vmin;
+}
+
+#game > .panel > .desc {
+    grid-column-end: span 4;
+    font-size: 2vmin;
+    overflow: hidden;
+}
+
+#game > .panel > button {
+    font-size: 2vmin;
+    overflow: hidden;
+}
+
 #game > .grid {
     display: grid;
     grid-template: repeat(4, 1fr) / repeat(4, 1fr);
@@ -91,36 +107,20 @@ body {
     box-sizing: border-box;
 }
 
-#game > #build {
-    background: peru;
-}
-
-#game > #build > .title {
-    grid-column-end: span 4;
-}
-
-#game > #build > .desc {
-    grid-column-end: span 4;
-}
-
-#game > #combat {
-    background: #e36245;
-}
-
-#game > #combat > .title {
-    grid-column-end: span 4;
-}
-
-#game > #combat > .desc {
-    grid-column-end: span 4;
-}
-
 #game > .bar {
     width: 90vw;
     height: 20vh;
     padding: 2vh 2vw;
     gap: 2vh 2vw;
     box-sizing: border-box;
+}
+
+#game > #build {
+    background: peru;
+}
+
+#game > #combat {
+    background: #e36245;
 }
 
 #game > #fight {
