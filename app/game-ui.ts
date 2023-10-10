@@ -74,4 +74,11 @@ export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
     cache.fightElem.appendChild(cache.enemyTemplate.content.cloneNode(true));
     const addedEnemy = cache.fightElem.lastElementChild as HTMLButtonElement;
     addedEnemy.onclick = () => ShowCombatPanel();
+    addedEnemy.animate(
+        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
+        {
+            duration: 1000,
+            iterations: 1,
+        }
+    );
 });

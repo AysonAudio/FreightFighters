@@ -32,10 +32,12 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
 /**
  * Hide Main Menu.
  * Unhide game.
+ * Dispatch "play" event on document.body.
  */
 const PlayGame: () => void = CACHE((cache: MenuCache) => {
     cache.mainMenuElem.style.display = "none";
     cache.gameElem.style.display = "";
+    document.body.dispatchEvent(new Event("play"));
 });
 
 // ========================================================================== //

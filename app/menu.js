@@ -16,10 +16,12 @@ const CACHE = (() => {
 /**
  * Hide Main Menu.
  * Unhide game.
+ * Dispatch "play" event on document.body.
  */
 const PlayGame = CACHE((cache) => {
     cache.mainMenuElem.style.display = "none";
     cache.gameElem.style.display = "";
+    document.body.dispatchEvent(new Event("play"));
 });
 // ========================================================================== //
 /**

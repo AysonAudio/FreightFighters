@@ -5,6 +5,9 @@ import * as GameUI from "./game-ui.js";
 
 Menu.InitMenu();
 GameUI.InitGrid();
-GameUI.AddEnemy();
-GameUI.AddEnemy();
-GameUI.AddEnemy();
+
+document.body.addEventListener("play", (e) => {
+    GameUI.AddEnemy();
+    GameUI.AddEnemy();
+    GameUI.AddEnemy();
+});
