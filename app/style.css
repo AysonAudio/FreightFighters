@@ -1,6 +1,7 @@
 body {
     background-color: #500017;
     overflow: hidden;
+    user-select: none;
 }
 
 .flex-row {
