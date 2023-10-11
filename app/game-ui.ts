@@ -80,7 +80,7 @@ export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
     addedEnemy.animate(
         [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
         {
-            easing: "cubic-bezier(0.42, 0, 0.58, 1)",
+            easing: "cubic-bezier(0, 1, 0.4, 1)",
             duration: 1000,
             iterations: 1,
         }
@@ -102,7 +102,8 @@ export const ShowNewTurn: (turn: number) => void = CACHE(
                 { opacity: "0" },
             ],
             {
-                duration: 1500,
+                easing: "cubic-bezier(0, 0.2, 1, 1)",
+                duration: 1800,
                 iterations: 1,
             }
         );
