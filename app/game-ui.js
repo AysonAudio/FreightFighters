@@ -9,6 +9,7 @@ const CACHE = (() => {
         fightElem: document.body.querySelector("#game > #fight"),
         enemyTemplate: document.body.querySelector("#enemy"),
         combatPanelElem: document.body.querySelector("#combat"),
+        newTurnElem: document.body.querySelector("#new-turn"),
     };
     return (func) => {
         return (...args) => func(cache, ...args);
@@ -50,7 +51,24 @@ export const AddEnemy = CACHE((cache) => {
     const addedEnemy = cache.fightElem.lastElementChild;
     addedEnemy.onclick = () => ShowCombatPanel();
     addedEnemy.animate([{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }], {
+        easing: "cubic-bezier(0.42, 0, 0.58, 1)",
         duration: 1000,
+        iterations: 1,
+    });
+});
+/**
+ * Show toast when new turn starts.
+ */
+export const ShowNewTurn = CACHE((cache, turn) => {
+    const title = cache.newTurnElem.children[1];
+    title.innerHTML = "Day " + turn.toString();
+    cache.newTurnElem.animate([
+        { opacity: "0" },
+        { opacity: "100" },
+        { opacity: "100" },
+        { opacity: "0" },
+    ], {
+        duration: 1500,
         iterations: 1,
     });
 });

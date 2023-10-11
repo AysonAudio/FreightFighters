@@ -10,6 +10,8 @@ type GameUiCache = {
     enemyTemplate: HTMLTemplateElement;
     /** A panel with combat details and options. */
     combatPanelElem: HTMLDivElement;
+    /** A toast with current turn number. */
+    newTurnElem: HTMLDivElement;
 };
 
 /** A function that needs access to a global variable. */
@@ -27,6 +29,7 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
             fightElem: document.body.querySelector("#game > #fight"),
             enemyTemplate: document.body.querySelector("#enemy"),
             combatPanelElem: document.body.querySelector("#combat"),
+            newTurnElem: document.body.querySelector("#new-turn"),
         };
 
         return (func) => {
@@ -77,8 +80,31 @@ export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
     addedEnemy.animate(
         [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
         {
+            easing: "cubic-bezier(0.42, 0, 0.58, 1)",
             duration: 1000,
             iterations: 1,
         }
     );
 });
+
+/**
+ * Show toast when new turn starts.
+ */
+export const ShowNewTurn: (turn: number) => void = CACHE(
+    (cache: GameUiCache, turn: number) => {
+        const title = cache.newTurnElem.children[1];
+        title.innerHTML = "Day " + turn.toString();
+        cache.newTurnElem.animate(
+            [
+                { opacity: "0" },
+                { opacity: "100" },
+                { opacity: "100" },
+                { opacity: "0" },
+            ],
+            {
+                duration: 1500,
+                iterations: 1,
+            }
+        );
+    }
+);
