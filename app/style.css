@@ -88,14 +88,18 @@ body {
 /* ------------------------ */
 
 #game > .grid {
+    box-sizing: border-box;
     display: grid;
+    gap: 2vh 2vw;
     grid-template: repeat(4, 1fr) / repeat(4, 1fr);
     height: 50vh;
     width: 50vw;
 }
 
 #game > .grid > button {
-    border-radius: 1vmax 4vmax 1vmax 1vmax;
+    box-sizing: border-box;
+    box-shadow: black 1vmin 1vmin 2vmin, rosybrown 0 0 3vmin;
+    border-radius: 2vmax 4vmax 2vmax 1vmax;
 }
 
 /* ------------------------ */
@@ -112,6 +116,7 @@ body {
 
 #game > .panel > button {
     border-radius: 1vmax 1vmax 1vmax 2vmax;
+    box-shadow: #500017 0 0 16px;
 }
 
 #game > .panel > .title {
@@ -199,10 +204,13 @@ body {
 }
 
 #game > .dashboard > span {
+    box-sizing: border-box;
+    box-shadow: inset rgba(0, 0, 0, 0.5) 0.5vmin 1vmin;
+    border-radius: 16px / 24px;
+    border: 2px solid rosybrown;
+    background: rosybrown;
     height: 6vh;
     width: 14vw;
-    border-radius: 16px / 24px;
-    background: rosybrown;
 }
 
 /* ========================================================================== */
