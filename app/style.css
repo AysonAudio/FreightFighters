@@ -213,6 +213,9 @@ body {
     background: rosybrown;
     height: 6vh;
     width: 14vw;
+    text-align: center;
+    font-size: 2vmin;
+    padding: 2vh 2vw;
 }
 
 /* ========================================================================== */
