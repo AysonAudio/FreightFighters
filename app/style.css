@@ -173,6 +173,7 @@ body {
 
 #game > #fight > .card > .counters > span {
     font-size: 2vmin;
+    margin: 0 0.4vw;
 }
 
 #game > #fight > .card > .bg-art {
@@ -180,8 +181,8 @@ body {
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
-    margin: 0 0 1vh;
-    border-radius: 1vmax 4vmax 1vmax 1vmax;
+    margin: 0 1vw 1vh;
+    border-radius: 3vmax 3vmax 1vmax 1vmax / 6vmax;
 }
 
 #game > #fight > .card > .bg-art > img {
