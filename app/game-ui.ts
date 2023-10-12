@@ -4,14 +4,18 @@ type GameUiCache = {
     gridDiv: HTMLDivElement;
     /** A panel with building details and options. */
     buildPanelDiv: HTMLDivElement;
-    /** A bar with enemy cards. */
-    fightDiv: HTMLDivElement;
-    /** An enemy card template. */
-    enemyTemplate: HTMLTemplateElement;
     /** A panel with combat details and options. */
     combatPanelDiv: HTMLDivElement;
+    /** A bar with enemy cards. */
+    fightDiv: HTMLDivElement;
+    /** Current tool amount. */
+    tools: number;
+    /** A span showing current tool amount. */
+    toolSpan: HTMLSpanElement;
     /** A toast with current turn number. */
     newTurnDiv: HTMLDivElement;
+    /** An template of an enemy card. */
+    enemyTemplate: HTMLTemplateElement;
 };
 
 /** A function that needs access to a global variable. */
@@ -26,10 +30,14 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
         const cache: GameUiCache = {
             gridDiv: document.body.querySelector("#game > .grid"),
             buildPanelDiv: document.body.querySelector("#game > #build"),
+            combatPanelDiv: document.body.querySelector("#game > #combat"),
             fightDiv: document.body.querySelector("#game > #fight"),
-            enemyTemplate: document.body.querySelector("#enemy"),
-            combatPanelDiv: document.body.querySelector("#combat"),
+            tools: 0,
+            toolSpan: document.body.querySelector(
+                "#game > .dashboard > #tools"
+            ),
             newTurnDiv: document.body.querySelector("#new-turn"),
+            enemyTemplate: document.body.querySelector("#enemy"),
         };
 
         return (func) => {
@@ -107,5 +115,14 @@ export const ShowNewTurn: (turn: number) => void = CACHE(
                 iterations: 1,
             }
         );
+    }
+);
+
+/**
+ * Increment tools.
+ */
+export const AddTools: (added: number) => void = CACHE(
+    (cache: GameUiCache, added: number) => {
+        cache.toolSpan.innerHTML = "⚒️" + (cache.tools + added).toString();
     }
 );

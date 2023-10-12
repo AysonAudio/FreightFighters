@@ -6,10 +6,12 @@ const CACHE = (() => {
     const cache = {
         gridDiv: document.body.querySelector("#game > .grid"),
         buildPanelDiv: document.body.querySelector("#game > #build"),
+        combatPanelDiv: document.body.querySelector("#game > #combat"),
         fightDiv: document.body.querySelector("#game > #fight"),
-        enemyTemplate: document.body.querySelector("#enemy"),
-        combatPanelDiv: document.body.querySelector("#combat"),
+        tools: 0,
+        toolSpan: document.body.querySelector("#game > .dashboard > #tools"),
         newTurnDiv: document.body.querySelector("#new-turn"),
+        enemyTemplate: document.body.querySelector("#enemy"),
     };
     return (func) => {
         return (...args) => func(cache, ...args);
@@ -74,5 +76,8 @@ export const ShowNewTurn = CACHE((cache, turn) => {
     });
 });
 /**
- * Add
+ * Increment tools.
  */
+export const AddTools = CACHE((cache, added) => {
+    cache.toolSpan.innerHTML = "⚒️" + (cache.tools + added).toString();
+});

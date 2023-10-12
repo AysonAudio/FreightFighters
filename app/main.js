@@ -8,4 +8,5 @@ document.body.addEventListener("play", (e) => {
     GameUI.AddEnemy();
     GameUI.AddEnemy();
     GameUI.AddEnemy();
+    GameUI.AddTools(888);
 });
