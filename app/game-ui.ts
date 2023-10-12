@@ -1,17 +1,17 @@
 /** All global variables to cache when the game is loaded. */
 type GameUiCache = {
     /** A grid with building spot buttons. */
-    gridElem: HTMLDivElement;
+    gridDiv: HTMLDivElement;
     /** A panel with building details and options. */
-    buildPanelElem: HTMLDivElement;
+    buildPanelDiv: HTMLDivElement;
     /** A bar with enemy cards. */
-    fightElem: HTMLDivElement;
+    fightDiv: HTMLDivElement;
     /** An enemy card template. */
     enemyTemplate: HTMLTemplateElement;
     /** A panel with combat details and options. */
-    combatPanelElem: HTMLDivElement;
+    combatPanelDiv: HTMLDivElement;
     /** A toast with current turn number. */
-    newTurnElem: HTMLDivElement;
+    newTurnDiv: HTMLDivElement;
 };
 
 /** A function that needs access to a global variable. */
@@ -24,12 +24,12 @@ type GameBuildingsFunc<Return> = (cache: GameUiCache, ...args) => Return;
 const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
     (() => {
         const cache: GameUiCache = {
-            gridElem: document.body.querySelector("#game > .grid"),
-            buildPanelElem: document.body.querySelector("#game > #build"),
-            fightElem: document.body.querySelector("#game > #fight"),
+            gridDiv: document.body.querySelector("#game > .grid"),
+            buildPanelDiv: document.body.querySelector("#game > #build"),
+            fightDiv: document.body.querySelector("#game > #fight"),
             enemyTemplate: document.body.querySelector("#enemy"),
-            combatPanelElem: document.body.querySelector("#combat"),
-            newTurnElem: document.body.querySelector("#new-turn"),
+            combatPanelDiv: document.body.querySelector("#combat"),
+            newTurnDiv: document.body.querySelector("#new-turn"),
         };
 
         return (func) => {
@@ -45,8 +45,8 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
  * Hide other panels.
  */
 const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
-    cache.buildPanelElem.style.display = "";
-    cache.combatPanelElem.style.display = "none";
+    cache.buildPanelDiv.style.display = "";
+    cache.combatPanelDiv.style.display = "none";
 });
 
 /**
@@ -55,8 +55,8 @@ const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
  * Hide other panels.
  */
 const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
-    cache.combatPanelElem.style.display = "";
-    cache.buildPanelElem.style.display = "none";
+    cache.combatPanelDiv.style.display = "";
+    cache.buildPanelDiv.style.display = "none";
 });
 
 // ========================================================================== //
@@ -65,7 +65,7 @@ const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
  * Init grid buttons.
  */
 export const InitGrid: () => void = CACHE((cache: GameUiCache) => {
-    for (const buttonElem of cache.gridElem
+    for (const buttonElem of cache.gridDiv
         .children as HTMLCollectionOf<HTMLButtonElement>)
         buttonElem.onclick = () => ShowBuildPanel();
 });
@@ -74,8 +74,8 @@ export const InitGrid: () => void = CACHE((cache: GameUiCache) => {
  * Create enemy card in #fight.
  */
 export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
-    cache.fightElem.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    const addedEnemy = cache.fightElem.lastElementChild as HTMLButtonElement;
+    cache.fightDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
+    const addedEnemy = cache.fightDiv.lastElementChild as HTMLButtonElement;
     addedEnemy.onclick = () => ShowCombatPanel();
     addedEnemy.animate(
         [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
@@ -92,9 +92,9 @@ export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
  */
 export const ShowNewTurn: (turn: number) => void = CACHE(
     (cache: GameUiCache, turn: number) => {
-        const title = cache.newTurnElem.children[1];
+        const title = cache.newTurnDiv.children[1];
         title.innerHTML = "Day " + turn.toString();
-        cache.newTurnElem.animate(
+        cache.newTurnDiv.animate(
             [
                 { opacity: "0" },
                 { opacity: "100" },

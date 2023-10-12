@@ -1,11 +1,11 @@
 /** All global variables to cache when the game is loaded. */
 type MenuCache = {
-    /** Main Menu container elem. Hidden when Play Game is clicked. */
-    mainMenuElem: HTMLDivElement;
     /** Play Game button. */
-    playElem: HTMLButtonElement;
+    playButton: HTMLButtonElement;
+    /** Main Menu container elem. Hidden when Play Game is clicked. */
+    mainMenuDiv: HTMLDivElement;
     /** Game container elem. Unhidden when Play Game is clicked. */
-    gameElem: HTMLDivElement;
+    gameDiv: HTMLDivElement;
 };
 
 /** A function that needs access to a global variable. */
@@ -17,9 +17,11 @@ type MenuFunc<Return> = (cache: MenuCache, ...args) => Return;
  */
 const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
     const cache: MenuCache = {
-        mainMenuElem: document.body.querySelector("#main-menu"),
-        playElem: document.body.querySelector("#main-menu > .buttons > .play"),
-        gameElem: document.body.querySelector("#game"),
+        playButton: document.body.querySelector(
+            "#main-menu > .buttons > .play"
+        ),
+        mainMenuDiv: document.body.querySelector("#main-menu"),
+        gameDiv: document.body.querySelector("#game"),
     };
 
     return (func) => {
@@ -35,8 +37,8 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
  * Dispatch "play" event on document.body.
  */
 const PlayGame: () => void = CACHE((cache: MenuCache) => {
-    cache.mainMenuElem.style.display = "none";
-    cache.gameElem.style.display = "";
+    cache.mainMenuDiv.style.display = "none";
+    cache.gameDiv.style.display = "";
     document.body.dispatchEvent(new Event("play"));
 });
 
@@ -46,5 +48,5 @@ const PlayGame: () => void = CACHE((cache: MenuCache) => {
  * Init buttons.
  */
 export const InitMenu: () => void = CACHE((cache: MenuCache) => {
-    cache.playElem.onclick = () => PlayGame();
+    cache.playButton.onclick = () => PlayGame();
 });

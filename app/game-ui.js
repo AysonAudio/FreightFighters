@@ -4,12 +4,12 @@
  */
 const CACHE = (() => {
     const cache = {
-        gridElem: document.body.querySelector("#game > .grid"),
-        buildPanelElem: document.body.querySelector("#game > #build"),
-        fightElem: document.body.querySelector("#game > #fight"),
+        gridDiv: document.body.querySelector("#game > .grid"),
+        buildPanelDiv: document.body.querySelector("#game > #build"),
+        fightDiv: document.body.querySelector("#game > #fight"),
         enemyTemplate: document.body.querySelector("#enemy"),
-        combatPanelElem: document.body.querySelector("#combat"),
-        newTurnElem: document.body.querySelector("#new-turn"),
+        combatPanelDiv: document.body.querySelector("#combat"),
+        newTurnDiv: document.body.querySelector("#new-turn"),
     };
     return (func) => {
         return (...args) => func(cache, ...args);
@@ -22,8 +22,8 @@ const CACHE = (() => {
  * Hide other panels.
  */
 const ShowBuildPanel = CACHE((cache) => {
-    cache.buildPanelElem.style.display = "";
-    cache.combatPanelElem.style.display = "none";
+    cache.buildPanelDiv.style.display = "";
+    cache.combatPanelDiv.style.display = "none";
 });
 /**
  * Click fight card.
@@ -31,15 +31,15 @@ const ShowBuildPanel = CACHE((cache) => {
  * Hide other panels.
  */
 const ShowCombatPanel = CACHE((cache) => {
-    cache.combatPanelElem.style.display = "";
-    cache.buildPanelElem.style.display = "none";
+    cache.combatPanelDiv.style.display = "";
+    cache.buildPanelDiv.style.display = "none";
 });
 // ========================================================================== //
 /**
  * Init grid buttons.
  */
 export const InitGrid = CACHE((cache) => {
-    for (const buttonElem of cache.gridElem
+    for (const buttonElem of cache.gridDiv
         .children)
         buttonElem.onclick = () => ShowBuildPanel();
 });
@@ -47,8 +47,8 @@ export const InitGrid = CACHE((cache) => {
  * Create enemy card in #fight.
  */
 export const AddEnemy = CACHE((cache) => {
-    cache.fightElem.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    const addedEnemy = cache.fightElem.lastElementChild;
+    cache.fightDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
+    const addedEnemy = cache.fightDiv.lastElementChild;
     addedEnemy.onclick = () => ShowCombatPanel();
     addedEnemy.animate([{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }], {
         easing: "cubic-bezier(0, 1, 0.4, 1)",
@@ -60,9 +60,9 @@ export const AddEnemy = CACHE((cache) => {
  * Show toast when new turn starts.
  */
 export const ShowNewTurn = CACHE((cache, turn) => {
-    const title = cache.newTurnElem.children[1];
+    const title = cache.newTurnDiv.children[1];
     title.innerHTML = "Day " + turn.toString();
-    cache.newTurnElem.animate([
+    cache.newTurnDiv.animate([
         { opacity: "0" },
         { opacity: "100" },
         { opacity: "100" },
@@ -73,3 +73,6 @@ export const ShowNewTurn = CACHE((cache, turn) => {
         iterations: 1,
     });
 });
+/**
+ * Add
+ */
