@@ -1,10 +1,12 @@
-import * as Menu from "./menu.js";
+import * as GameBuild from "./game-build.js";
 import * as GameUI from "./game-ui.js";
+import * as Menu from "./menu.js";
 // ========================================================================== //
-Menu.InitMenu();
+GameBuild.InitBuildings();
 GameUI.InitGrid();
+Menu.InitMenu();
 document.body.addEventListener("play", (e) => {
-    GameUI.ShowNewTurn(1);
+    GameUI.ShowGameDay(1);
     GameUI.AddEnemy();
     GameUI.AddEnemy();
     GameUI.AddEnemy();

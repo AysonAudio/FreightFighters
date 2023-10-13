@@ -1,6 +1,6 @@
 /**
  * A decorator factory.
- * Manages one global {@link GameBuildingsCache} object and passes it to functions.
+ * Manages one global {@link GameUiCache} object and passes it to functions.
  */
 const CACHE = (() => {
     const cache = {
@@ -10,7 +10,7 @@ const CACHE = (() => {
         fightDiv: document.body.querySelector("#game > #fight"),
         tools: 0,
         toolSpan: document.body.querySelector("#game > .dashboard > #tools"),
-        newTurnDiv: document.body.querySelector("#new-turn"),
+        gameDayDiv: document.body.querySelector("#new-turn"),
         enemyTemplate: document.body.querySelector("#enemy"),
     };
     return (func) => {
@@ -20,7 +20,7 @@ const CACHE = (() => {
 // ========================================================================== //
 /**
  * Click grid button.
- * Show building details and options.
+ * Show building details and actions.
  * Hide other panels.
  */
 const ShowBuildPanel = CACHE((cache) => {
@@ -29,7 +29,7 @@ const ShowBuildPanel = CACHE((cache) => {
 });
 /**
  * Click fight card.
- * Show combat details and options.
+ * Show combat details and actions.
  * Hide other panels.
  */
 const ShowCombatPanel = CACHE((cache) => {
@@ -59,12 +59,12 @@ export const AddEnemy = CACHE((cache) => {
     });
 });
 /**
- * Show toast when new turn starts.
+ * Show toast when game days pass.
  */
-export const ShowNewTurn = CACHE((cache, turn) => {
-    const title = cache.newTurnDiv.children[1];
+export const ShowGameDay = CACHE((cache, turn) => {
+    const title = cache.gameDayDiv.children[1];
     title.innerHTML = "Day " + turn.toString();
-    cache.newTurnDiv.animate([
+    cache.gameDayDiv.animate([
         { opacity: "0" },
         { opacity: "100" },
         { opacity: "100" },

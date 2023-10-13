@@ -2,9 +2,9 @@
 type GameUiCache = {
     /** A grid with building spot buttons. */
     gridDiv: HTMLDivElement;
-    /** A panel with building details and options. */
+    /** A panel with building details and actions. */
     buildPanelDiv: HTMLDivElement;
-    /** A panel with combat details and options. */
+    /** A panel with combat details and actions. */
     combatPanelDiv: HTMLDivElement;
     /** A bar with enemy cards. */
     fightDiv: HTMLDivElement;
@@ -12,20 +12,20 @@ type GameUiCache = {
     tools: number;
     /** A span showing current tool amount. */
     toolSpan: HTMLSpanElement;
-    /** A toast with current turn number. */
-    newTurnDiv: HTMLDivElement;
-    /** An template of an enemy card. */
+    /** A toast with current game day. */
+    gameDayDiv: HTMLDivElement;
+    /** A template of an enemy card. */
     enemyTemplate: HTMLTemplateElement;
 };
 
 /** A function that needs access to a global variable. */
-type GameBuildingsFunc<Return> = (cache: GameUiCache, ...args) => Return;
+type GameUiFunc<Return> = (cache: GameUiCache, ...args) => Return;
 
 /**
  * A decorator factory.
- * Manages one global {@link GameBuildingsCache} object and passes it to functions.
+ * Manages one global {@link GameUiCache} object and passes it to functions.
  */
-const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
+const CACHE: <Return>(func: GameUiFunc<Return>) => (...args) => Return =
     (() => {
         const cache: GameUiCache = {
             gridDiv: document.body.querySelector("#game > .grid"),
@@ -36,7 +36,7 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
             toolSpan: document.body.querySelector(
                 "#game > .dashboard > #tools"
             ),
-            newTurnDiv: document.body.querySelector("#new-turn"),
+            gameDayDiv: document.body.querySelector("#new-turn"),
             enemyTemplate: document.body.querySelector("#enemy"),
         };
 
@@ -49,7 +49,7 @@ const CACHE: <Return>(func: GameBuildingsFunc<Return>) => (...args) => Return =
 
 /**
  * Click grid button.
- * Show building details and options.
+ * Show building details and actions.
  * Hide other panels.
  */
 const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
@@ -59,7 +59,7 @@ const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
 
 /**
  * Click fight card.
- * Show combat details and options.
+ * Show combat details and actions.
  * Hide other panels.
  */
 const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
@@ -96,13 +96,13 @@ export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
 });
 
 /**
- * Show toast when new turn starts.
+ * Show toast when game days pass.
  */
-export const ShowNewTurn: (turn: number) => void = CACHE(
+export const ShowGameDay: (turn: number) => void = CACHE(
     (cache: GameUiCache, turn: number) => {
-        const title = cache.newTurnDiv.children[1];
+        const title = cache.gameDayDiv.children[1];
         title.innerHTML = "Day " + turn.toString();
-        cache.newTurnDiv.animate(
+        cache.gameDayDiv.animate(
             [
                 { opacity: "0" },
                 { opacity: "100" },

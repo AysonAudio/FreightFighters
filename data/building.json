@@ -1,0 +1,17 @@
+{
+    "buildings": {
+        "campfire": {
+            "name": "Campfire",
+            "desc": "A humble resting place.",
+            "iconURI": "../vendor/game-icons/campfire.svg",
+            "actions": [
+                {
+                    "iconURI": "../vendor/game-icons/campfire.svg",
+                    "addDays": 1,
+                    "addTools": 0
+                }
+            ],
+            "$schema": "./building.schema.json"
+        }
+    }
+}

@@ -16,6 +16,12 @@ body {
     justify-content: center;
 }
 
+.flex-mid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .counters {
     display: flex;
     flex-direction: row;
@@ -103,6 +109,12 @@ body {
     border-radius: 2vmax 4vmax 2vmax 1vmax;
 }
 
+#game > .grid > button > img {
+    border-radius: 2vmax 4vmax 2vmax 1vmax;
+    max-width: 80%;
+    max-height: 80%;
+}
+
 /* ------------------------ */
 
 #game > .panel {
@@ -178,8 +190,6 @@ body {
 
 #game > #fight > .card > .bg-art {
     background: black;
-    justify-content: center;
-    align-items: center;
     box-sizing: border-box;
     margin: 0 1vw 1vh;
     border-radius: 3vmax 3vmax 1vmax 1vmax / 6vmax;

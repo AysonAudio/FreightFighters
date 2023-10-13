@@ -2,6 +2,6 @@
     "compilerOptions": {
         "declaration": false,
         "module": "ESNext",
-        "target": "ESNext",
+        "target": "ESNext"
     }
 }

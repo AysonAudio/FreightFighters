@@ -1,0 +1,44 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "/data/buildings.schema.json",
+    "title": "Building",
+    "description": "Design a new building.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "Title text for UI.",
+            "type": "string"
+        },
+        "desc": {
+            "description": "Description text for UI.",
+            "type": "string"
+        },
+        "iconURI": {
+            "description": "Path to icon for UI.",
+            "type": "string"
+        },
+        "actions": {
+            "description": "Select building and click button to do something.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "iconURI": {
+                        "description": "Path to icon for button.",
+                        "type": "string"
+                    },
+                    "addDays": {
+                        "description": "Number of days passed doing this action.",
+                        "type": "number"
+                    },
+                    "addTools": {
+                        "description": "Number of tools gained doing this action.",
+                        "type": "number"
+                    }
+                },
+                "required": ["iconURI"]
+            }
+        }
+    },
+    "required": ["name", "desc", "iconURI"]
+}
