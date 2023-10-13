@@ -22,13 +22,13 @@ interface GameBuildingData extends GameBuildingJSON {
 
 // ========================================================================== //
 
-/** All global variables to cache when the game is loaded. */
+/** Variables cached in memory for quick access. */
 type GameBuildingCache = {
-    /** Building types from /data/building.json. */
+    /** All building types in /data/building.json. */
     buildingTypes: GameBuildingData;
     /** Spawned buildings. */
     buildings: GameBuildingType[];
-    /** Building spots. */
+    /** Building grid buttons. */
     buttonElems: NodeListOf<HTMLButtonElement>;
 };
 

@@ -4,7 +4,6 @@
  */
 const CACHE = (() => {
     const cache = {
-        playButton: document.body.querySelector("#main-menu > .buttons > .play"),
         mainMenuDiv: document.body.querySelector("#main-menu"),
         gameDiv: document.body.querySelector("#game"),
     };
@@ -15,7 +14,7 @@ const CACHE = (() => {
 // ========================================================================== //
 /**
  * Hide Main Menu.
- * Unhide game.
+ * Unhide Game.
  * Dispatch "play" event on document.body.
  */
 const PlayGame = CACHE((cache) => {
@@ -25,8 +24,9 @@ const PlayGame = CACHE((cache) => {
 });
 // ========================================================================== //
 /**
- * Init buttons.
+ * Program Main Menu buttons.
  */
-export const InitMenu = CACHE((cache) => {
-    cache.playButton.onclick = () => PlayGame();
-});
+export function InitMenu() {
+    const playButton = document.body.querySelector("#main-menu > .buttons > .play");
+    playButton.onclick = () => PlayGame();
+}

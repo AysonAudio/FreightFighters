@@ -32,6 +32,8 @@ const AddBuilding = CACHE((cache, building) => {
     const img = button.firstElementChild;
     cache.buildings.push(building);
     img.src = building.iconURI;
+    // to do: add name and desc to ui.
+    // to do: implement items.
 });
 // ========================================================================== //
 /**

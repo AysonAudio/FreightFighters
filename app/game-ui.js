@@ -4,14 +4,13 @@
  */
 const CACHE = (() => {
     const cache = {
-        gridDiv: document.body.querySelector("#game > .grid"),
         buildPanelDiv: document.body.querySelector("#game > #build"),
         combatPanelDiv: document.body.querySelector("#game > #combat"),
-        fightDiv: document.body.querySelector("#game > #fight"),
+        fightBarDiv: document.body.querySelector("#game > #fight"),
+        enemyTemplate: document.body.querySelector("#enemy"),
         tools: 0,
         toolSpan: document.body.querySelector("#game > .dashboard > #tools"),
-        gameDayDiv: document.body.querySelector("#new-turn"),
-        enemyTemplate: document.body.querySelector("#enemy"),
+        newDayDiv: document.body.querySelector("#new-day"),
     };
     return (func) => {
         return (...args) => func(cache, ...args);
@@ -19,8 +18,8 @@ const CACHE = (() => {
 })();
 // ========================================================================== //
 /**
- * Click grid button.
- * Show building details and actions.
+ * Click building button.
+ * Show details and actions on build panel.
  * Hide other panels.
  */
 const ShowBuildPanel = CACHE((cache) => {
@@ -28,8 +27,8 @@ const ShowBuildPanel = CACHE((cache) => {
     cache.combatPanelDiv.style.display = "none";
 });
 /**
- * Click fight card.
- * Show combat details and actions.
+ * Click enemy card.
+ * Show details and actions on combat panel.
  * Hide other panels.
  */
 const ShowCombatPanel = CACHE((cache) => {
@@ -38,33 +37,21 @@ const ShowCombatPanel = CACHE((cache) => {
 });
 // ========================================================================== //
 /**
- * Init grid buttons.
+ * Program building grid buttons.
  */
-export const InitGrid = CACHE((cache) => {
-    for (const buttonElem of cache.gridDiv
-        .children)
-        buttonElem.onclick = () => ShowBuildPanel();
-});
-/**
- * Create enemy card in #fight.
- */
-export const AddEnemy = CACHE((cache) => {
-    cache.fightDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    const addedEnemy = cache.fightDiv.lastElementChild;
-    addedEnemy.onclick = () => ShowCombatPanel();
-    addedEnemy.animate([{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }], {
-        easing: "cubic-bezier(0, 1, 0.4, 1)",
-        duration: 1000,
-        iterations: 1,
-    });
-});
+export function InitGrid() {
+    const gridDiv = document.body.querySelector("#game > .grid");
+    const buttons = gridDiv.children;
+    for (const button of buttons)
+        button.onclick = () => ShowBuildPanel();
+}
 /**
  * Show toast when game days pass.
  */
 export const ShowGameDay = CACHE((cache, turn) => {
-    const title = cache.gameDayDiv.children[1];
+    const title = cache.newDayDiv.children[1];
     title.innerHTML = "Day " + turn.toString();
-    cache.gameDayDiv.animate([
+    cache.newDayDiv.animate([
         { opacity: "0" },
         { opacity: "100" },
         { opacity: "100" },
@@ -76,7 +63,20 @@ export const ShowGameDay = CACHE((cache, turn) => {
     });
 });
 /**
- * Increment tools.
+ * Spawn enemy card in fight bar.
+ */
+export const AddEnemy = CACHE((cache) => {
+    cache.fightBarDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
+    const addedEnemy = cache.fightBarDiv.lastElementChild;
+    addedEnemy.onclick = () => ShowCombatPanel();
+    addedEnemy.animate([{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }], {
+        easing: "cubic-bezier(0, 1, 0.4, 1)",
+        duration: 1000,
+        iterations: 1,
+    });
+});
+/**
+ * Increment player tools.
  */
 export const AddTools = CACHE((cache, added) => {
     cache.toolSpan.innerHTML = "⚒️" + (cache.tools + added).toString();

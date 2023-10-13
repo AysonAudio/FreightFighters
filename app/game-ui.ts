@@ -1,24 +1,31 @@
-/** All global variables to cache when the game is loaded. */
+/** Variables cached in memory for quick access. */
 type GameUiCache = {
-    /** A grid with building spot buttons. */
-    gridDiv: HTMLDivElement;
-    /** A panel with building details and actions. */
+    /**
+     * An element with building details and actions.
+     * Unhidden when a building is clicked on.
+     */
     buildPanelDiv: HTMLDivElement;
-    /** A panel with combat details and actions. */
+    /**
+     * An element with combat details and actions.
+     * Unhidden when an enemy is clicked on.
+     */
     combatPanelDiv: HTMLDivElement;
-    /** A bar with enemy cards. */
-    fightDiv: HTMLDivElement;
-    /** Current tool amount. */
+
+    /** An element in which all enemy cards are spawned. */
+    fightBarDiv: HTMLDivElement;
+    /** A template element. Cloned when a new enemy card is spawned. */
+    enemyTemplate: HTMLTemplateElement;
+
+    /** How much tools the player currently has. */
     tools: number;
     /** A span showing current tool amount. */
     toolSpan: HTMLSpanElement;
-    /** A toast with current game day. */
-    gameDayDiv: HTMLDivElement;
-    /** A template of an enemy card. */
-    enemyTemplate: HTMLTemplateElement;
+
+    /** A toast shown when game days pass. */
+    newDayDiv: HTMLDivElement;
 };
 
-/** A function that needs access to a global variable. */
+/** A function that needs access to a cached variable. */
 type GameUiFunc<Return> = (cache: GameUiCache, ...args) => Return;
 
 /**
@@ -28,16 +35,18 @@ type GameUiFunc<Return> = (cache: GameUiCache, ...args) => Return;
 const CACHE: <Return>(func: GameUiFunc<Return>) => (...args) => Return =
     (() => {
         const cache: GameUiCache = {
-            gridDiv: document.body.querySelector("#game > .grid"),
             buildPanelDiv: document.body.querySelector("#game > #build"),
             combatPanelDiv: document.body.querySelector("#game > #combat"),
-            fightDiv: document.body.querySelector("#game > #fight"),
+
+            fightBarDiv: document.body.querySelector("#game > #fight"),
+            enemyTemplate: document.body.querySelector("#enemy"),
+
             tools: 0,
             toolSpan: document.body.querySelector(
                 "#game > .dashboard > #tools"
             ),
-            gameDayDiv: document.body.querySelector("#new-turn"),
-            enemyTemplate: document.body.querySelector("#enemy"),
+
+            newDayDiv: document.body.querySelector("#new-day"),
         };
 
         return (func) => {
@@ -48,8 +57,8 @@ const CACHE: <Return>(func: GameUiFunc<Return>) => (...args) => Return =
 // ========================================================================== //
 
 /**
- * Click grid button.
- * Show building details and actions.
+ * Click building button.
+ * Show details and actions on build panel.
  * Hide other panels.
  */
 const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
@@ -58,8 +67,8 @@ const ShowBuildPanel: () => void = CACHE((cache: GameUiCache) => {
 });
 
 /**
- * Click fight card.
- * Show combat details and actions.
+ * Click enemy card.
+ * Show details and actions on combat panel.
  * Hide other panels.
  */
 const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
@@ -70,39 +79,22 @@ const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
 // ========================================================================== //
 
 /**
- * Init grid buttons.
+ * Program building grid buttons.
  */
-export const InitGrid: () => void = CACHE((cache: GameUiCache) => {
-    for (const buttonElem of cache.gridDiv
-        .children as HTMLCollectionOf<HTMLButtonElement>)
-        buttonElem.onclick = () => ShowBuildPanel();
-});
-
-/**
- * Create enemy card in #fight.
- */
-export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
-    cache.fightDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    const addedEnemy = cache.fightDiv.lastElementChild as HTMLButtonElement;
-    addedEnemy.onclick = () => ShowCombatPanel();
-    addedEnemy.animate(
-        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
-        {
-            easing: "cubic-bezier(0, 1, 0.4, 1)",
-            duration: 1000,
-            iterations: 1,
-        }
-    );
-});
+export function InitGrid() {
+    const gridDiv = document.body.querySelector("#game > .grid");
+    const buttons = gridDiv.children as HTMLCollectionOf<HTMLButtonElement>;
+    for (const button of buttons) button.onclick = () => ShowBuildPanel();
+}
 
 /**
  * Show toast when game days pass.
  */
 export const ShowGameDay: (turn: number) => void = CACHE(
     (cache: GameUiCache, turn: number) => {
-        const title = cache.gameDayDiv.children[1];
+        const title = cache.newDayDiv.children[1];
         title.innerHTML = "Day " + turn.toString();
-        cache.gameDayDiv.animate(
+        cache.newDayDiv.animate(
             [
                 { opacity: "0" },
                 { opacity: "100" },
@@ -119,7 +111,24 @@ export const ShowGameDay: (turn: number) => void = CACHE(
 );
 
 /**
- * Increment tools.
+ * Spawn enemy card in fight bar.
+ */
+export const AddEnemy: () => void = CACHE((cache: GameUiCache) => {
+    cache.fightBarDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
+    const addedEnemy = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
+    addedEnemy.onclick = () => ShowCombatPanel();
+    addedEnemy.animate(
+        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
+        {
+            easing: "cubic-bezier(0, 1, 0.4, 1)",
+            duration: 1000,
+            iterations: 1,
+        }
+    );
+});
+
+/**
+ * Increment player tools.
  */
 export const AddTools: (added: number) => void = CACHE(
     (cache: GameUiCache, added: number) => {
