@@ -79,21 +79,38 @@ const ShowCombatPanel: () => void = CACHE((cache: GameUiCache) => {
 // ========================================================================== //
 
 /**
- * Program building grid buttons.
+ * Program Building Grid buttons.
  */
 export function InitGrid() {
     const gridDiv = document.body.querySelector("#game > .grid");
     const buttons = gridDiv.children as HTMLCollectionOf<HTMLButtonElement>;
-    for (const button of buttons) button.onclick = () => ShowBuildPanel();
+    let i = 0;
+
+    /** Show and update build panel when clicking a Building Grid button. */
+    function registerEvent(button: HTMLButtonElement, buttonIndex: number) {
+        const event: CustomEvent<{ clickedButtonIndex: number }> =
+            new CustomEvent("updateBuildPanel", {
+                detail: { clickedButtonIndex: buttonIndex },
+            });
+
+        button.onclick = () => {
+            ShowBuildPanel();
+            document.body.dispatchEvent(event);
+        };
+    }
+    for (const button of buttons) {
+        registerEvent(button, i);
+        i++;
+    }
 }
 
 /**
  * Show toast when game days pass.
  */
-export const ShowGameDay: (turn: number) => void = CACHE(
-    (cache: GameUiCache, turn: number) => {
+export const ShowGameDay: (day: number) => void = CACHE(
+    (cache: GameUiCache, day: number) => {
         const title = cache.newDayDiv.children[1];
-        title.innerHTML = "Day " + turn.toString();
+        title.innerHTML = "Day " + day.toString();
         cache.newDayDiv.animate(
             [
                 { opacity: "0" },

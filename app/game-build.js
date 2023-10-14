@@ -6,7 +6,10 @@ const CACHE = (() => {
     let cache = {
         buildingTypes: {},
         buildings: [],
-        buttonElems: document.querySelectorAll("#game > .grid > button"),
+        gridButtonElems: document.body.querySelectorAll("#game > .grid > button"),
+        buildPanelTitleElem: document.body.querySelector("#game > #build > .title"),
+        buildPanelDescElem: document.body.querySelector("#game > #build > .desc"),
+        buildPanelButtonElems: document.body.querySelectorAll("#game > #build > button"),
     };
     return (func) => {
         return (...args) => func(cache, ...args);
@@ -28,14 +31,26 @@ const LoadBuildings = CACHE(async (cache) => {
  */
 const AddBuilding = CACHE((cache, building) => {
     const i = cache.buildings.length;
-    const button = cache.buttonElems.item(i);
+    const button = cache.gridButtonElems.item(i);
     const img = button.firstElementChild;
-    cache.buildings.push(building);
     img.src = building.iconURI;
-    // to do: add name and desc to ui.
-    // to do: implement items.
+    cache.buildings.push(building);
 });
 // ========================================================================== //
+/**
+ * Register event.
+ * Update build panel when a building is clicked.
+ */
+export const InitBuildPanel = CACHE((cache) => {
+    document.body.addEventListener("updateBuildPanel", (e) => {
+        const building = cache.buildings[e.detail.clickedButtonIndex];
+        if (!building)
+            return;
+        cache.buildPanelTitleElem.innerHTML = building.name;
+        cache.buildPanelDescElem.innerHTML = building.desc;
+        // cache.buildPanelButtonElems
+    });
+});
 /**
  * Load building types into memory.
  * Add starting buildings to grid.

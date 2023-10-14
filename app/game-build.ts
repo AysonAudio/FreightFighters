@@ -5,8 +5,8 @@ type GameBuildingType = {
     desc: string;
     actions: {
         iconURI: string;
-        addDays: number;
-        addTools: number;
+        addDays?: number;
+        addTools?: number;
     }[];
 };
 
@@ -28,8 +28,16 @@ type GameBuildingCache = {
     buildingTypes: GameBuildingData;
     /** Spawned buildings. */
     buildings: GameBuildingType[];
-    /** Building grid buttons. */
-    buttonElems: NodeListOf<HTMLButtonElement>;
+
+    /** Building Grid buttons. */
+    gridButtonElems: NodeListOf<HTMLButtonElement>;
+
+    /** Build Panel title. */
+    buildPanelTitleElem: HTMLHeadingElement;
+    /** Build Panel description. */
+    buildPanelDescElem: HTMLParagraphElement;
+    /** Build Panel action buttons. */
+    buildPanelButtonElems: NodeListOf<HTMLButtonElement>;
 };
 
 /** A function that needs access to a global variable. */
@@ -44,8 +52,17 @@ const CACHE: <Return>(func: GameBuildingFunc<Return>) => (...args) => Return =
         let cache: GameBuildingCache = {
             buildingTypes: {},
             buildings: [],
-            buttonElems: document.querySelectorAll<HTMLButtonElement>(
+            gridButtonElems: document.body.querySelectorAll(
                 "#game > .grid > button"
+            ),
+            buildPanelTitleElem: document.body.querySelector(
+                "#game > #build > .title"
+            ),
+            buildPanelDescElem: document.body.querySelector(
+                "#game > #build > .desc"
+            ),
+            buildPanelButtonElems: document.body.querySelectorAll(
+                "#game > #build > button"
             ),
         };
 
@@ -75,16 +92,31 @@ const LoadBuildings: () => Promise<void> = CACHE(
 const AddBuilding: (building: GameBuildingType) => void = CACHE(
     (cache: GameBuildingCache, building: GameBuildingType) => {
         const i = cache.buildings.length;
-        const button = cache.buttonElems.item(i);
+        const button = cache.gridButtonElems.item(i);
         const img = button.firstElementChild as HTMLImageElement;
-        cache.buildings.push(building);
         img.src = building.iconURI;
-        // to do: add name and desc to ui.
-        // to do: implement items.
+        cache.buildings.push(building);
     }
 );
 
 // ========================================================================== //
+
+/**
+ * Register event.
+ * Update build panel when a building is clicked.
+ */
+export const InitBuildPanel: () => void = CACHE((cache: GameBuildingCache) => {
+    document.body.addEventListener(
+        "updateBuildPanel",
+        (e: CustomEvent<{ clickedButtonIndex: number }>) => {
+            const building = cache.buildings[e.detail.clickedButtonIndex];
+            if (!building) return;
+            cache.buildPanelTitleElem.innerHTML = building.name;
+            cache.buildPanelDescElem.innerHTML = building.desc;
+            // cache.buildPanelButtonElems
+        }
+    );
+});
 
 /**
  * Load building types into memory.

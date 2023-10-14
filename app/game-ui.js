@@ -37,20 +37,33 @@ const ShowCombatPanel = CACHE((cache) => {
 });
 // ========================================================================== //
 /**
- * Program building grid buttons.
+ * Program Building Grid buttons.
  */
 export function InitGrid() {
     const gridDiv = document.body.querySelector("#game > .grid");
     const buttons = gridDiv.children;
-    for (const button of buttons)
-        button.onclick = () => ShowBuildPanel();
+    let i = 0;
+    /** Show and update build panel when clicking a Building Grid button. */
+    function registerEvent(button, buttonIndex) {
+        const event = new CustomEvent("updateBuildPanel", {
+            detail: { clickedButtonIndex: buttonIndex },
+        });
+        button.onclick = () => {
+            ShowBuildPanel();
+            document.body.dispatchEvent(event);
+        };
+    }
+    for (const button of buttons) {
+        registerEvent(button, i);
+        i++;
+    }
 }
 /**
  * Show toast when game days pass.
  */
-export const ShowGameDay = CACHE((cache, turn) => {
+export const ShowGameDay = CACHE((cache, day) => {
     const title = cache.newDayDiv.children[1];
-    title.innerHTML = "Day " + turn.toString();
+    title.innerHTML = "Day " + day.toString();
     cache.newDayDiv.animate([
         { opacity: "0" },
         { opacity: "100" },

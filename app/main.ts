@@ -4,6 +4,7 @@ import * as Menu from "./menu.js";
 
 // ========================================================================== //
 
+GameBuild.InitBuildPanel();
 GameBuild.InitBuildings();
 GameUI.InitGrid();
 Menu.InitMenu();

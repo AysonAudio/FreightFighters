@@ -2,6 +2,7 @@ import * as GameBuild from "./game-build.js";
 import * as GameUI from "./game-ui.js";
 import * as Menu from "./menu.js";
 // ========================================================================== //
+GameBuild.InitBuildPanel();
 GameBuild.InitBuildings();
 GameUI.InitGrid();
 Menu.InitMenu();
