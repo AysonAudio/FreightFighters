@@ -107,6 +107,7 @@ body {
     box-sizing: border-box;
     box-shadow: black 1vmin 1vmin 2vmin, rosybrown 0 0 3vmin;
     border-radius: 2vmax 4vmax 2vmax 1vmax;
+    overflow: hidden;
 }
 
 #game > .grid > button > img {
