@@ -4,6 +4,8 @@ type MenuCache = {
     mainMenuDiv: HTMLDivElement;
     /** Game container elem. Unhidden when Play Game is clicked. */
     gameDiv: HTMLDivElement;
+    /** Play Game button. */
+    playButton: HTMLButtonElement;
 };
 
 /** A function that needs access to a cached variable. */
@@ -17,6 +19,9 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
     const cache: MenuCache = {
         mainMenuDiv: document.body.querySelector("#main-menu"),
         gameDiv: document.body.querySelector("#game"),
+        playButton: document.body.querySelector(
+            "#main-menu > .buttons > .play"
+        ),
     };
 
     return (func) => {
@@ -27,24 +32,15 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
 // ========================================================================== //
 
 /**
- * Hide Main Menu.
- * Unhide Game.
- * Dispatch "play" event on document.body.
+ * Set onclick for Play Game button.
+ * - Hide Main Menu.
+ * - Unhide Game.
+ * - Dispatch "play" event.
  */
-const PlayGame: () => void = CACHE((cache: MenuCache) => {
-    cache.mainMenuDiv.style.display = "none";
-    cache.gameDiv.style.display = "";
-    document.body.dispatchEvent(new Event("play"));
+export const Init: () => void = CACHE((cache: MenuCache) => {
+    cache.playButton.onclick = () => {
+        cache.mainMenuDiv.style.display = "none";
+        cache.gameDiv.style.display = "";
+        document.body.dispatchEvent(new Event("play"));
+    };
 });
-
-// ========================================================================== //
-
-/**
- * Program Main Menu buttons.
- */
-export function InitMenu() {
-    const playButton: HTMLButtonElement = document.body.querySelector(
-        "#main-menu > .buttons > .play"
-    );
-    playButton.onclick = () => PlayGame();
-}

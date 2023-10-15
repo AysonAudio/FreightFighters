@@ -6,7 +6,7 @@
             "iconURI": "../vendor/game-icons/campfire.svg",
             "actions": [
                 {
-                    "iconURI": "../vendor/game-icons/campfire.svg",
+                    "iconURI": "../vendor/game-icons/backward-time.svg",
                     "addDays": 1,
                     "addTools": 0
                 }

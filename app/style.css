@@ -133,6 +133,11 @@ body {
     box-shadow: #500017 0 0 16px;
 }
 
+#game > .panel > button > img {
+    width: 80%;
+    height: 80%;
+}
+
 #game > .panel > .title {
     grid-column-end: span 4;
     font-size: 3vmin;
