@@ -1,4 +1,5 @@
 import type { GameBuildingEvent } from "./game-building";
+import type { GameInventoryEvent } from "./game-inventory";
 
 // ========================================================================== //
 
@@ -51,8 +52,6 @@ type GameUiCache = {
      * Shows current tools.
      */
     toolSpan: HTMLSpanElement;
-    /** Current tools. */
-    tools: number;
 
     /**
      * A banner that fades in and out.
@@ -105,7 +104,6 @@ const CACHE: <Return>(func: GameUiFunc<Return>) => (...args) => Return =
             toolSpan: document.body.querySelector(
                 "#game > .dashboard > #tools"
             ),
-            tools: 0,
 
             dayToastDiv: document.body.querySelector("#day"),
             dayToastHeading: document.body.querySelector("#day > h1"),
@@ -125,6 +123,9 @@ const CACHE: <Return>(func: GameUiFunc<Return>) => (...args) => Return =
  *
  * Listen for building spawn event.
  * - Update Building Grid button art.
+ *
+ * Listen for tool gain event.
+ * - Update resource display.
  */
 export const Init: () => void = CACHE((cache: GameUiCache) => {
     let i = 0;
@@ -154,6 +155,10 @@ export const Init: () => void = CACHE((cache: GameUiCache) => {
             gridButtonImg.src = building.iconURI;
         }
     );
+
+    document.body.addEventListener("onGainTools", (e: GameInventoryEvent) => {
+        cache.toolSpan.innerHTML = "⚒️" + e.detail.tools.toString();
+    });
 });
 
 // ========================================================================== //
@@ -205,12 +210,3 @@ export const SpawnEnemy: () => void = CACHE((cache: GameUiCache) => {
         cache.buildPanelDiv.style.display = "none";
     };
 });
-
-/**
- * Increment player tools.
- */
-export const AddTools: (added: number) => void = CACHE(
-    (cache: GameUiCache, added: number) => {
-        cache.toolSpan.innerHTML = "⚒️" + (cache.tools + added).toString();
-    }
-);
