@@ -50,7 +50,9 @@ type CacheUI = {
     /** Cloned to spawn a new enemy. */
     enemyTemplate: HTMLTemplateElement;
 
-    /** Tool Display. A player resource counter. */
+    /**
+     * Tool Display. A player resource counter.
+     */
     toolSpan: HTMLSpanElement;
 
     /**
@@ -129,19 +131,37 @@ function InitButtonClicks() {
  */
 function InitGridEventsForUI() {
     const cache: CacheUI = GetCacheUI();
+    const buttons = cache.buildPanelButtons;
+    const imgs = cache.buildPanelImages;
+
     window.addEventListener("clickGrid", (e: CustomEvent<number>) => {
         const buildingCache = GetBuildingCache();
         const building = buildingCache.buildings[e.detail];
+
         // Show Build Panel. Hide other panels.
         cache.buildPanelDiv.style.display = "";
         cache.combatPanelDiv.style.display = "none";
-        // Update text and images.
+
+        // Update text and images. Hide unused action buttons.
         if (building) {
+            const actions = building.actions;
             cache.buildPanelHeading.innerHTML = building.name;
             cache.buildPanelParagraph.innerHTML = building.desc;
+            for (let i = 0; i < actions.length; i++) {
+                buttons[i].style.display = "";
+                imgs[i].src = actions[i].iconURI;
+            }
+            for (let i = actions.length; i < imgs.length; i++) {
+                buttons[i].style.display = "none";
+                imgs[i].src = "";
+            }
         } else {
             cache.buildPanelHeading.innerHTML = "";
             cache.buildPanelParagraph.innerHTML = "";
+            for (let i = 0; i < imgs.length; i++) {
+                buttons[i].style.display = "none";
+                imgs[i].src = "";
+            }
         }
     });
 }
