@@ -1,41 +1,50 @@
+export type ResourceChange = {
+    change: number;
+    newTotal: number;
+};
+
+export type ResourceChangeEvent = CustomEvent<ResourceChange>;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 /** Global inventory variables. */
-type GameInventoryCache = {
+type InventoryCache = {
     /** How much tools the player has. */
     tools: number;
 };
 
-/** A function that needs access to a cached variable. */
-type GameInventoryFunc<Return> = (cache: GameInventoryCache, ...args) => Return;
-
-/** A custom event that passes the cache. */
-export type GameInventoryEvent = CustomEvent<GameInventoryCache>;
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /**
- * A decorator factory.
- * Manages one global {@link GameUiCache} object and passes it to functions.
+ * A decorated function.
+ * One global {@link InventoryCache} object is initialized in the decorator.
+ * Calling the resulting function returns the same object every time.
  */
-const CACHE: <Return>(func: GameInventoryFunc<Return>) => (...args) => Return =
-    (() => {
-        const cache: GameInventoryCache = {
-            tools: 0,
-        };
+export const GetInventoryCache: () => InventoryCache = (() => {
+    const cache: InventoryCache = {
+        tools: 0,
+    };
+    return () => cache;
+})();
 
-        return (func) => {
-            return (...args) => func(cache, ...args);
-        };
-    })();
-
-// ========================================================================== //
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Increment tools (or decrement if amount is negative).
- * Dispatch a {@link GameInventoryEvent} named "onGainTools".
+ * Dispatch a {@link ResourceChangeEvent} named "gainTools".
  */
-export const GainTools: (amount: number) => void = CACHE(
-    (cache: GameInventoryCache, amount: number) => {
-        cache.tools += amount;
-        document.body.dispatchEvent(
-            new CustomEvent("onGainTools", { detail: cache })
-        );
-    }
-);
+export function GainTools(amount: number) {
+    const cache = GetInventoryCache();
+    cache.tools += amount;
+    window.dispatchEvent(
+        new CustomEvent<ResourceChange>("gainTools", {
+            detail: {
+                change: amount,
+                newTotal: cache.tools,
+            },
+        })
+    );
+}
