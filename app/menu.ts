@@ -41,6 +41,6 @@ export const Init: () => void = CACHE((cache: MenuCache) => {
     cache.playButton.onclick = () => {
         cache.mainMenuDiv.style.display = "none";
         cache.gameDiv.style.display = "";
-        document.body.dispatchEvent(new Event("play"));
+        window.dispatchEvent(new Event("play"));
     };
 });

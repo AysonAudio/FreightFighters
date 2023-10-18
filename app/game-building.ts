@@ -5,7 +5,7 @@ export type Building = {
     actions: {
         iconURI: string;
         addDays?: number;
-        addTools?: number;
+        addWood?: number;
     }[];
 };
 
@@ -27,6 +27,7 @@ interface GameBuildingJSON {
 /** All building types in /data/building.json. */
 interface GameBuildingData extends GameBuildingJSON {
     campfire?: Building;
+    tree?: Building;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +35,8 @@ interface GameBuildingData extends GameBuildingJSON {
 
 /** Global building variables. */
 type BuildingCache = {
+    /** Index of currently selected building. Undefined if nothing selected. */
+    selected: number | undefined;
     /** Spawned buildings. */
     buildings: Building[];
     /** All building types in /data/building.json. */
@@ -49,15 +52,13 @@ type BuildingCache = {
  */
 export const GetBuildingCache: () => BuildingCache = (() => {
     let cache: BuildingCache = {
+        selected: undefined,
         buildingTypes: {},
         buildings: [],
         areTypesLoaded: false,
     };
     return () => cache;
 })();
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Load building types from /data/building.json into cache.
@@ -78,8 +79,30 @@ async function LoadTypes(): Promise<boolean> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Listen for Grid click event:
+ * - Update cache.selected.
+ */
+function InitClickEvents() {
+    const cache = GetBuildingCache();
+    window.addEventListener("clickGrid", (e: CustomEvent<number>) => {
+        cache.selected = e.detail;
+    });
+}
+
+/**
+ * Init all Building systems.
+ * Run this once at game start.
+ */
+export function Init() {
+    InitClickEvents();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Spawn a new building.
- * Dispatch a {@link BuildingSpawnEvent}.
+ * Dispatch a {@link BuildingSpawnEvent} named "spawnBuilding".
  */
 function SpawnBuilding(building: Building) {
     const cache = GetBuildingCache();
@@ -101,5 +124,6 @@ export function SpawnStarterBuildings() {
     const cache = GetBuildingCache();
     LoadTypes().then(() => {
         SpawnBuilding(cache.buildingTypes.campfire);
+        SpawnBuilding(cache.buildingTypes.tree);
     });
 }

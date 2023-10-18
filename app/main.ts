@@ -5,12 +5,13 @@ import * as Menu from "./menu.js";
 
 // ========================================================================== //
 
+GameBuilding.Init();
+GameInventory.Init();
 GameUI.Init();
 Menu.Init();
 
-document.body.addEventListener("play", (e) => {
+window.addEventListener("play", (e) => {
     GameBuilding.SpawnStarterBuildings();
-    GameInventory.GainTools(888);
     GameUI.ShowGameDay(1);
     GameUI.SpawnEnemy();
     GameUI.SpawnEnemy();

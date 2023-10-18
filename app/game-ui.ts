@@ -51,9 +51,10 @@ type CacheUI = {
     enemyTemplate: HTMLTemplateElement;
 
     /**
-     * Tool Display. A player resource counter.
+     * Wood Display.
+     * A player resource counter.
      */
-    toolSpan: HTMLSpanElement;
+    woodSpan: HTMLSpanElement;
 
     /**
      * Day Toast.
@@ -100,7 +101,7 @@ export const GetCacheUI: () => CacheUI = (() => {
 
         enemyTemplate: document.body.querySelector("#enemy"),
 
-        toolSpan: document.body.querySelector("#game > .dashboard > #tools"),
+        woodSpan: document.body.querySelector("#game > .dashboard > #wood"),
 
         dayToastDiv: document.body.querySelector("#day"),
         dayToastHeading: document.body.querySelector("#day > h1"),
@@ -119,9 +120,17 @@ export const GetCacheUI: () => CacheUI = (() => {
  */
 function InitButtonClicks() {
     const cache: CacheUI = GetCacheUI();
+
+    // Building Grid //
     for (let i = 0; i < cache.gridButtons.length; i++) {
         cache.gridButtons[i].onclick = () =>
             window.dispatchEvent(new CustomEvent("clickGrid", { detail: i }));
+    }
+
+    // Building Panel //
+    for (let i = 0; i < cache.buildPanelButtons.length; i++) {
+        cache.buildPanelButtons[i].onclick = () =>
+            window.dispatchEvent(new CustomEvent("clickBuild", { detail: i }));
     }
 }
 
@@ -129,7 +138,7 @@ function InitButtonClicks() {
  * Listen for Grid click event:
  * - Update Build Panel UI.
  */
-function InitGridEventsForUI() {
+function InitClickEvents() {
     const cache: CacheUI = GetCacheUI();
     const buttons = cache.buildPanelButtons;
     const imgs = cache.buildPanelImages;
@@ -170,7 +179,7 @@ function InitGridEventsForUI() {
  * Listen for building spawn event:
  * - Update Building Grid UI.
  */
-function InitBuildingEventsForUI() {
+function InitBuildingEvents() {
     const cache: CacheUI = GetCacheUI();
     window.addEventListener("spawnBuilding", (e: BuildingSpawnEvent) => {
         cache.gridButtonImgs[e.detail.index].src = e.detail.building.iconURI;
@@ -181,10 +190,10 @@ function InitBuildingEventsForUI() {
  * Listen for resource gain events:
  * - Update resource counter UI.
  */
-function InitResourceEventsForUI() {
+function InitResourceEvents() {
     const cache: CacheUI = GetCacheUI();
-    window.addEventListener("gainTools", (e: ResourceChangeEvent) => {
-        cache.toolSpan.innerHTML = "⚒️" + e.detail.newTotal.toString();
+    window.addEventListener("gainWood", (e: ResourceChangeEvent) => {
+        cache.woodSpan.innerHTML = "🌲" + e.detail.newTotal.toString();
     });
 }
 
@@ -197,9 +206,9 @@ function InitResourceEventsForUI() {
  */
 export function Init() {
     InitButtonClicks();
-    InitGridEventsForUI();
-    InitBuildingEventsForUI();
-    InitResourceEventsForUI();
+    InitClickEvents();
+    InitBuildingEvents();
+    InitResourceEvents();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

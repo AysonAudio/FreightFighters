@@ -1,3 +1,8 @@
+import { GetBuildingCache } from "./game-building.js";
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 export type ResourceChange = {
     change: number;
     newTotal: number;
@@ -10,8 +15,8 @@ export type ResourceChangeEvent = CustomEvent<ResourceChange>;
 
 /** Global inventory variables. */
 type InventoryCache = {
-    /** How much tools the player has. */
-    tools: number;
+    /** How much wood the player has. */
+    wood: number;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +29,7 @@ type InventoryCache = {
  */
 export const GetInventoryCache: () => InventoryCache = (() => {
     const cache: InventoryCache = {
-        tools: 0,
+        wood: 0,
     };
     return () => cache;
 })();
@@ -33,17 +38,41 @@ export const GetInventoryCache: () => InventoryCache = (() => {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Increment tools (or decrement if amount is negative).
- * Dispatch a {@link ResourceChangeEvent} named "gainTools".
+ * Listen for building action events.
+ * - Update player resources.
  */
-export function GainTools(amount: number) {
+function InitClickEvents() {
+    const buildingCache = GetBuildingCache();
+    window.addEventListener("clickBuild", (e: CustomEvent<number>) => {
+        const building = buildingCache.buildings[buildingCache.selected];
+        const action = building.actions[e.detail];
+        if (action.addWood) GainWood(action.addWood);
+    });
+}
+
+/**
+ * Init all inventory systems.
+ * Run this once at game start.
+ */
+export function Init() {
+    InitClickEvents();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Increment wood (or decrement if amount is negative).
+ * Dispatch a {@link ResourceChangeEvent} named "gainWood".
+ */
+export function GainWood(amount: number) {
     const cache = GetInventoryCache();
-    cache.tools += amount;
+    cache.wood += amount;
     window.dispatchEvent(
-        new CustomEvent<ResourceChange>("gainTools", {
+        new CustomEvent<ResourceChange>("gainWood", {
             detail: {
                 change: amount,
-                newTotal: cache.tools,
+                newTotal: cache.wood,
             },
         })
     );

@@ -31,8 +31,8 @@
                         "description": "Number of days passed doing this action.",
                         "type": "number"
                     },
-                    "addTools": {
-                        "description": "Number of tools gained doing this action.",
+                    "addWood": {
+                        "description": "Wood gained doing this action.",
                         "type": "number"
                     }
                 },
