@@ -118,9 +118,17 @@ body {
 
 /* ------------------------ */
 
+#game > #build {
+    background: peru;
+}
+
+#game > #combat {
+    background: #e36245;
+}
+
 #game > .panel {
     display: grid;
-    grid-template: 1fr 3fr 1fr / repeat(4, 1fr);
+    grid-template: 3fr 2fr 2fr 2fr 3fr 3fr / repeat(4, 1fr);
     height: 50vh;
     width: 35vw;
     padding: 2vh 2vw;
@@ -128,19 +136,24 @@ body {
     box-sizing: border-box;
 }
 
-#game > .panel > button {
-    border-radius: 1vmax 1vmax 1vmax 2vmax;
-    box-shadow: #500017 0 0 16px;
-}
-
-#game > .panel > button > img {
-    width: 80%;
-    height: 80%;
-}
-
 #game > .panel > .title {
     grid-column-end: span 4;
     font-size: 3vmin;
+}
+
+#game > .panel > .portrait {
+    grid-column-end: span 2;
+    grid-row-end: span 3;
+    background: #ffecba;
+    box-shadow: #50001744 0 0.5vmax 0.5vmax;
+    border-radius: 1vmax 1vmax 3vmax 1vmax;
+}
+
+#game > .panel > .bar-mini {
+    grid-column-end: span 2;
+    background: #ffecba;
+    box-shadow: #50001744 0 0.5vmax 0.5vmax;
+    border-radius: 1vmax 1vmax 2vmax 1vmax;
 }
 
 #game > .panel > .desc {
@@ -152,14 +165,13 @@ body {
 #game > .panel > button {
     font-size: 2vmin;
     overflow: hidden;
+    border-radius: 1vmax 1vmax 1vmax 2vmax;
+    box-shadow: #500017 0 0 1.5vmax;
 }
 
-#game > #build {
-    background: peru;
-}
-
-#game > #combat {
-    background: #e36245;
+#game > .panel > button > img {
+    width: 80%;
+    height: 80%;
 }
 
 /* ------------------------ */
