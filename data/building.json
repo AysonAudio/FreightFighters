@@ -5,10 +5,23 @@
             "name": "Campfire",
             "desc": "A humble resting place.",
             "iconURI": "../vendor/game-icons/campfire.svg",
+            "portraitURI": "../vendor/game-icons/campfire.svg",
+            "counters": [
+                {
+                    "key": "hp",
+                    "name": "Health",
+                    "desc": "Current player health.",
+                    "emblem": "❤️",
+                    "value": 2
+                }
+            ],
             "actions": [
                 {
                     "iconURI": "../vendor/game-icons/backward-time.svg",
-                    "addDays": 1
+                    "adjust": {
+                        "days": 1,
+                        "hp": 1
+                    }
                 }
             ]
         },
@@ -17,10 +30,13 @@
             "name": "Tree",
             "desc": "A punchable tree.",
             "iconURI": "../vendor/game-icons/beech.svg",
+            "portraitURI": "../vendor/game-icons/beech.svg",
             "actions": [
                 {
                     "iconURI": "../vendor/game-icons/punch.svg",
-                    "addWood": 1
+                    "adjust": {
+                        "wood": 1
+                    }
                 }
             ]
         }

@@ -1,19 +1,19 @@
-import * as GameBuilding from "./game-building.js";
-import * as GameInventory from "./game-inventory.js";
-import * as GameUI from "./game-ui.js";
+import * as LibBuilding from "./game-building.js";
+import * as LibPlayer from "./game-player.js";
+import * as LibUI from "./game-ui.js";
 import * as Menu from "./menu.js";
 
 // ========================================================================== //
 
-GameBuilding.Init();
-GameInventory.Init();
-GameUI.Init();
+LibBuilding.Init();
+LibPlayer.Init();
+LibUI.Init();
 Menu.Init();
 
 window.addEventListener("play", (e) => {
-    GameBuilding.SpawnStarterBuildings();
-    GameUI.ShowGameDay(1);
-    GameUI.SpawnEnemy();
-    GameUI.SpawnEnemy();
-    GameUI.SpawnEnemy();
+    LibBuilding.SpawnStarterBuildings();
+    LibUI.ShowGameDay(1);
+    LibUI.SpawnEnemy();
+    LibUI.SpawnEnemy();
+    LibUI.SpawnEnemy();
 });

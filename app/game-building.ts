@@ -1,11 +1,22 @@
 export type Building = {
-    iconURI: string;
     name: string;
     desc: string;
+    iconURI: string;
+    portraitURI: string;
+    counters: {
+        key: string;
+        name: string;
+        desc: string;
+        emblem: string;
+        value: number;
+    }[];
     actions: {
         iconURI: string;
-        addDays?: number;
-        addWood?: number;
+        adjust?: {
+            days?: number;
+            hp?: number;
+            wood?: number;
+        };
     }[];
 };
 
@@ -84,7 +95,7 @@ async function LoadTypes(): Promise<boolean> {
  */
 function InitClickEvents() {
     const cache = GetBuildingCache();
-    window.addEventListener("clickGrid", (e: CustomEvent<number>) => {
+    window.addEventListener("click_grid", (e: CustomEvent<number>) => {
         cache.selected = e.detail;
     });
 }
@@ -102,13 +113,13 @@ export function Init() {
 
 /**
  * Spawn a new building.
- * Dispatch a {@link BuildingSpawnEvent} named "spawnBuilding".
+ * Dispatch a {@link BuildingSpawnEvent} named "spawn_building".
  */
 function SpawnBuilding(building: Building) {
     const cache = GetBuildingCache();
     cache.buildings.push(building);
     window.dispatchEvent(
-        new CustomEvent<BuildingSpawn>("spawnBuilding", {
+        new CustomEvent<BuildingSpawn>("spawn_building", {
             detail: {
                 building: building,
                 index: cache.buildings.length - 1,

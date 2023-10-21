@@ -4,41 +4,89 @@
     "title": "Building",
     "description": "Design a new building.",
     "type": "object",
+    "required": ["name", "desc", "iconURI", "portraitURI"],
     "properties": {
         "name": {
-            "description": "Title text for UI.",
+            "description": "Title text.",
             "type": "string"
         },
         "desc": {
-            "description": "Description text for UI.",
+            "description": "Description text.",
             "type": "string"
         },
         "iconURI": {
-            "description": "Path to icon for UI.",
+            "description": "Art asset path.",
             "type": "string"
         },
-        "actions": {
-            "description": "Select building and click button to do something.",
+        "portraitURI": {
+            "description": "Art asset path.",
+            "type": "string"
+        },
+        "counters": {
+            "description": "Define 0-3 counters that each display 0-4 tally marks.",
             "type": "array",
+            "maxItems": 4,
             "items": {
                 "type": "object",
+                "required": ["key", "name", "desc", "emblem", "value"],
                 "properties": {
-                    "iconURI": {
-                        "description": "Path to icon for button.",
+                    "key": {
+                        "description": "Key of associated variable in JS.",
                         "type": "string"
                     },
-                    "addDays": {
-                        "description": "Number of days passed doing this action.",
-                        "type": "number"
+                    "name": {
+                        "description": "Tooltip title.",
+                        "type": "string"
                     },
-                    "addWood": {
-                        "description": "Wood gained doing this action.",
-                        "type": "number"
+                    "desc": {
+                        "description": "Tooltip description.",
+                        "type": "string"
+                    },
+                    "emblem": {
+                        "description": "Tally mark. A single unicode emoji character.",
+                        "type": "string"
+                    },
+                    "value": {
+                        "description": "Starting value in JSON. Current value in JS.",
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 4
                     }
-                },
-                "required": ["iconURI"]
+                }
+            }
+        },
+        "actions": {
+            "description": "Define 0-4 buttons that run gameplay functions.",
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+                "type": "object",
+                "required": ["iconURI"],
+                "properties": {
+                    "iconURI": {
+                        "description": "Art asset path.",
+                        "type": "string"
+                    },
+                    "adjust": {
+                        "description": "Adjust resources, by a positive or negative amount.",
+                        "type": "object",
+                        "properties": {
+                            "days": {
+                                "description": "Game days.",
+                                "type": "number"
+                            },
+                            "hp": {
+                                "description": "Player health points.",
+                                "type": "number"
+                            },
+                            "wood": {
+                                "description": "Player wood resources.",
+                                "type": "number"
+                            }
+                        }
+                    }
+                }
             }
         }
-    },
-    "required": ["name", "desc", "iconURI"]
+    }
 }

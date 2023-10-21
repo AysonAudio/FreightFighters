@@ -28,10 +28,6 @@ body {
     justify-content: space-between;
 }
 
-.title {
-    text-align: center;
-}
-
 /* ========================================================================== */
 
 #main-menu .font {
@@ -67,10 +63,14 @@ body {
     margin-top: 10vmin;
     margin-left: 10vw;
     margin-right: 10vw;
+    overflow: hidden;
 }
 
 #main-menu > .buttons > button {
+    box-sizing: border-box;
+    max-width: 20vmin;
     width: 20%;
+    padding: 2%;
     font-size: 3vmin;
 }
 
@@ -86,10 +86,6 @@ body {
 
 #game .font {
     font-family: "Young Serif", serif;
-}
-
-#game div {
-    border-radius: 1vmax 4vmax;
 }
 
 /* ------------------------ */
@@ -134,32 +130,48 @@ body {
     padding: 2vh 2vw;
     gap: 2vh 2vw;
     box-sizing: border-box;
+    border-radius: 1vmax 4vmax;
 }
 
 #game > .panel > .title {
     grid-column-end: span 4;
+    overflow: hidden;
     font-size: 3vmin;
+    font-variant: small-caps;
+    text-shadow: #fc0 0 0 2vmax;
+    color: #ffdd99;
 }
 
 #game > .panel > .portrait {
     grid-column-end: span 2;
     grid-row-end: span 3;
-    background: #ffecba;
-    box-shadow: #50001744 0 0.5vmax 0.5vmax;
+    /* background: #ffd771; */
+    /* box-shadow: #50001744 0 0.5vmax 0.5vmax; */
+    box-shadow: #50001744 0 0.25vmax 0.5vmax 0.25vmax;
+    box-sizing: border-box;
     border-radius: 1vmax 1vmax 3vmax 1vmax;
+    width: 100%;
+    height: 100%;
+    padding: 1vh 1vw;
 }
 
-#game > .panel > .bar-mini {
+#game > .panel > .mini-bar {
     grid-column-end: span 2;
-    background: #ffecba;
-    box-shadow: #50001744 0 0.5vmax 0.5vmax;
+    overflow: hidden;
+    /* background: #ffecba; */
+    /* box-shadow: #50001744 0 0.5vmax 0.5vmax; */
+    box-shadow: #50001744 0 0.25vmax 0.5vmax 0.25vmax;
     border-radius: 1vmax 1vmax 2vmax 1vmax;
+    gap: 1vw;
 }
 
 #game > .panel > .desc {
     grid-column-end: span 4;
-    font-size: 2vmin;
     overflow: hidden;
+    font-size: 2vmin;
+    border-radius: 1vmax 4vmax 1vmax 1vmax / 1vmax 2vmax 1vmax 1vmax;
+    box-shadow: #50001744 0 0.25vmax 0.5vmax 0.25vmax;
+    color: #444;
 }
 
 #game > .panel > button {
@@ -182,6 +194,7 @@ body {
     padding: 2vh 2vw;
     gap: 2vh 2vw;
     box-sizing: border-box;
+    border-radius: 1vmax 4vmax;
 }
 
 #game > #fight {

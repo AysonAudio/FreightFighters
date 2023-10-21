@@ -1,5 +1,5 @@
-import type { BuildingSpawnEvent } from "./game-building";
-import type { ResourceChangeEvent } from "./game-inventory";
+import type { Building, BuildingSpawnEvent } from "./game-building";
+import type { NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
 
@@ -26,14 +26,18 @@ type CacheUI = {
      * Hides all other panels.
      */
     buildPanelDiv: HTMLDivElement;
-    /** Building title. */
+    /** Building name. */
     buildPanelHeading: HTMLHeadingElement;
+    /** Building portrait. */
+    buildPanelImage: HTMLImageElement;
+    /** Building counters. */
+    buildPanelSpans: NodeListOf<HTMLSpanElement>;
     /** Building description. */
     buildPanelParagraph: HTMLParagraphElement;
     /** Building actions. */
     buildPanelButtons: NodeListOf<HTMLButtonElement>;
-    /** Child images of building actions. */
-    buildPanelImages: NodeListOf<HTMLImageElement>;
+    /** Building action icons. */
+    buildPanelSubimages: NodeListOf<HTMLImageElement>;
 
     /**
      * Combat Panel.
@@ -85,13 +89,19 @@ export const GetCacheUI: () => CacheUI = (() => {
         buildPanelHeading: document.body.querySelector(
             "#game > #build > .title"
         ),
+        buildPanelImage: document.body.querySelector(
+            "#game > #build > .portrait"
+        ),
+        buildPanelSpans: document.body.querySelectorAll(
+            "#game > #build > .mini-bar"
+        ),
         buildPanelParagraph: document.body.querySelector(
             "#game > #build > .desc"
         ),
         buildPanelButtons: document.body.querySelectorAll(
             "#game > #build > button"
         ),
-        buildPanelImages: document.body.querySelectorAll(
+        buildPanelSubimages: document.body.querySelectorAll(
             "#game > #build > button > img"
         ),
 
@@ -124,13 +134,13 @@ function InitButtonClicks() {
     // Building Grid //
     for (let i = 0; i < cache.gridButtons.length; i++) {
         cache.gridButtons[i].onclick = () =>
-            window.dispatchEvent(new CustomEvent("clickGrid", { detail: i }));
+            window.dispatchEvent(new CustomEvent("click_grid", { detail: i }));
     }
 
     // Building Panel //
     for (let i = 0; i < cache.buildPanelButtons.length; i++) {
         cache.buildPanelButtons[i].onclick = () =>
-            window.dispatchEvent(new CustomEvent("clickBuild", { detail: i }));
+            window.dispatchEvent(new CustomEvent("click_build", { detail: i }));
     }
 }
 
@@ -141,9 +151,10 @@ function InitButtonClicks() {
 function InitClickEvents() {
     const cache: CacheUI = GetCacheUI();
     const buttons = cache.buildPanelButtons;
-    const imgs = cache.buildPanelImages;
+    const imgs = cache.buildPanelSubimages;
+    const spans = cache.buildPanelSpans;
 
-    window.addEventListener("clickGrid", (e: CustomEvent<number>) => {
+    window.addEventListener("click_grid", (e: CustomEvent<number>) => {
         const buildingCache = GetBuildingCache();
         const building = buildingCache.buildings[e.detail];
 
@@ -151,25 +162,62 @@ function InitClickEvents() {
         cache.buildPanelDiv.style.display = "";
         cache.combatPanelDiv.style.display = "none";
 
-        // Update text and images. Hide unused action buttons.
+        // ---- CLICKED GRID BUTTON HAS A BUILDING ---- //
         if (building) {
-            const actions = building.actions;
+            const actions = building.actions || [];
+            const counters = building.counters || [];
+
+            // Unhide title and description. Update text.
+            cache.buildPanelHeading.style.display = "";
+            cache.buildPanelParagraph.style.display = "";
             cache.buildPanelHeading.innerHTML = building.name;
             cache.buildPanelParagraph.innerHTML = building.desc;
+            // Unhide portrait. Update image.
+            cache.buildPanelImage.style.display = "";
+            cache.buildPanelImage.src = building.portraitURI;
+            // Unhide actions. Update icons.
             for (let i = 0; i < actions.length; i++) {
                 buttons[i].style.display = "";
                 imgs[i].src = actions[i].iconURI;
             }
+            // Hide unused actions. Clear icons.
             for (let i = actions.length; i < imgs.length; i++) {
                 buttons[i].style.display = "none";
                 imgs[i].src = "";
             }
-        } else {
+            // Unhide counters. Update tally marks.
+            for (let i = 0; i < counters.length; i++) {
+                const emblem = counters[i].emblem;
+                const amount = building.counters[i].value;
+                spans[i].style.display = "";
+                spans[i].innerHTML = emblem.repeat(amount);
+            }
+            // Hide unused counters. Clear tally marks.
+            for (let i = counters.length; i < spans.length; i++) {
+                spans[i].style.display = "none";
+                spans[i].innerHTML = "";
+            }
+        }
+
+        // ---- CLICKED GRID BUTTON HAS NO BUILDING ---- //
+        else {
+            // Hide title and description. Clear text.
+            cache.buildPanelHeading.style.display = "none";
+            cache.buildPanelParagraph.style.display = "none";
             cache.buildPanelHeading.innerHTML = "";
             cache.buildPanelParagraph.innerHTML = "";
+            // Hide portrait. Clear image.
+            cache.buildPanelImage.style.display = "none";
+            cache.buildPanelImage.src = "";
+            // Hide actions. Clear icons.
             for (let i = 0; i < imgs.length; i++) {
                 buttons[i].style.display = "none";
                 imgs[i].src = "";
+            }
+            // Hide counters. Clear tally marks.
+            for (let i = 0; i < spans.length; i++) {
+                spans[i].style.display = "none";
+                spans[i].innerHTML = "";
             }
         }
     });
@@ -181,19 +229,38 @@ function InitClickEvents() {
  */
 function InitBuildingEvents() {
     const cache: CacheUI = GetCacheUI();
-    window.addEventListener("spawnBuilding", (e: BuildingSpawnEvent) => {
+    window.addEventListener("spawn_building", (e: BuildingSpawnEvent) => {
         cache.gridButtonImgs[e.detail.index].src = e.detail.building.iconURI;
     });
 }
 
 /**
- * Listen for resource gain events:
- * - Update resource counter UI.
+ * Listen for player variable change events:
+ * - Update UI numbers.
  */
 function InitResourceEvents() {
-    const cache: CacheUI = GetCacheUI();
-    window.addEventListener("gainWood", (e: ResourceChangeEvent) => {
-        cache.woodSpan.innerHTML = "🌲" + e.detail.newTotal.toString();
+    const cacheUI: CacheUI = GetCacheUI();
+    const cacheBuild = GetBuildingCache();
+
+    window.addEventListener("adjust", (e: NumChangeEvent) => {
+        switch (e.detail.key) {
+            case "wood":
+                cacheUI.woodSpan.innerHTML =
+                    "🌲" + e.detail.newTotal.toString();
+                break;
+            default:
+                if (cacheBuild.selected === undefined) break;
+                if (!cacheBuild.buildings[cacheBuild.selected].counters) break;
+                const selected = cacheBuild.buildings[cacheBuild.selected];
+                for (let i = 0; i < selected.counters.length; i++)
+                    if (e.detail.key == selected.counters[i].key) {
+                        const span = cacheUI.buildPanelSpans[i];
+                        const emblem = selected.counters[i].emblem;
+                        const amount = selected.counters[i].value;
+                        span.innerHTML = emblem.repeat(amount);
+                    }
+                break;
+        }
     });
 }
 
