@@ -42,12 +42,12 @@ type PlayerCache = {
 export const GetPlayerCache: () => PlayerCache = (() => {
     const cache: PlayerCache = {
         current: {
-            days: 0,
+            days: 1,
             hp: 2,
             wood: 0,
         },
         min: {
-            days: 0,
+            days: 1,
             hp: 0,
             wood: 0,
         },

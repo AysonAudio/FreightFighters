@@ -124,6 +124,57 @@ export const GetCacheUI: () => CacheUI = (() => {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Show an animated toast notification that shows the current game day.
+ */
+export function ShowGameDay(day: number) {
+    const cache = GetCacheUI();
+    cache.dayToastHeading.innerHTML = "Day " + day.toString();
+    cache.dayToastDiv.animate(
+        [
+            { opacity: "0" },
+            { opacity: "100" },
+            { opacity: "100" },
+            { opacity: "0" },
+        ],
+        {
+            easing: "cubic-bezier(0, 0.2, 1, 1)",
+            duration: 1800,
+            iterations: 1,
+        }
+    );
+}
+
+/**
+ * Spawn a new enemy card in fight bar.
+ * Set onclick for new enemy card:
+ * - Show Combat Panel and hide other panels.
+ */
+export function SpawnEnemy() {
+    const cache: CacheUI = GetCacheUI();
+    let addedEnemy: HTMLButtonElement;
+
+    cache.fightBarDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
+    addedEnemy = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
+
+    addedEnemy.animate(
+        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
+        {
+            easing: "cubic-bezier(0, 1, 0.4, 1)",
+            duration: 1000,
+            iterations: 1,
+        }
+    );
+
+    addedEnemy.onclick = () => {
+        cache.combatPanelDiv.style.display = "";
+        cache.buildPanelDiv.style.display = "none";
+    };
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Set onclicks for all UI buttons.
  * Each button dispatches a CustomEvent onclick. Event.detail = button index.
  * Other libraries can listen to this event to modularly add button functionality.
@@ -237,6 +288,7 @@ function InitBuildingEvents() {
 /**
  * Listen for player variable change events:
  * - Update UI numbers.
+ * - Show toast animation if game day changes.
  */
 function InitResourceEvents() {
     const cacheUI: CacheUI = GetCacheUI();
@@ -247,6 +299,9 @@ function InitResourceEvents() {
             case "wood":
                 cacheUI.woodSpan.innerHTML =
                     "🌲" + e.detail.newTotal.toString();
+                break;
+            case "days":
+                ShowGameDay(e.detail.newTotal);
                 break;
             default:
                 if (cacheBuild.selected === undefined) break;
@@ -276,55 +331,4 @@ export function Init() {
     InitClickEvents();
     InitBuildingEvents();
     InitResourceEvents();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Show an animated toast notification that shows the current game day.
- */
-export function ShowGameDay(day: number) {
-    const cache = GetCacheUI();
-    cache.dayToastHeading.innerHTML = "Day " + day.toString();
-    cache.dayToastDiv.animate(
-        [
-            { opacity: "0" },
-            { opacity: "100" },
-            { opacity: "100" },
-            { opacity: "0" },
-        ],
-        {
-            easing: "cubic-bezier(0, 0.2, 1, 1)",
-            duration: 1800,
-            iterations: 1,
-        }
-    );
-}
-
-/**
- * Spawn a new enemy card in fight bar.
- * Set onclick for new enemy card:
- * - Show Combat Panel and hide other panels.
- */
-export function SpawnEnemy() {
-    const cache: CacheUI = GetCacheUI();
-    let addedEnemy: HTMLButtonElement;
-
-    cache.fightBarDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    addedEnemy = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
-
-    addedEnemy.animate(
-        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
-        {
-            easing: "cubic-bezier(0, 1, 0.4, 1)",
-            duration: 1000,
-            iterations: 1,
-        }
-    );
-
-    addedEnemy.onclick = () => {
-        cache.combatPanelDiv.style.display = "";
-        cache.buildPanelDiv.style.display = "none";
-    };
 }
