@@ -3,13 +3,23 @@ import { GetBuildingCache } from "./game-building.js";
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-export type NumChange = {
+export type Counter = {
     key: string;
-    change: number;
-    newTotal: number;
+    name: string;
+    desc: string;
+    emblem: string;
+    value: number;
 };
 
-export type NumChangeEvent = CustomEvent<NumChange>;
+/** A JSON object containing counters. */
+interface CounterJSON {
+    [key: string]: Counter;
+}
+
+/** All counters in /data/counter.json. */
+interface CounterData extends CounterJSON {
+    hp?: Counter;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,15 +34,28 @@ type PlayerNums = {
     wood: number;
 };
 
+export type NumChange = {
+    key: string;
+    change: number;
+    newTotal: number;
+};
+
+export type NumChangeEvent = CustomEvent<NumChange>;
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 /** Global player variables. */
 type PlayerCache = {
     current: PlayerNums;
     min: PlayerNums;
     max: PlayerNums;
-};
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+    /** All counters in /data/counter.json. */
+    counters: CounterData;
+    /** True if counters are loaded. */
+    areCountersLoaded: boolean;
+};
 
 /**
  * A decorated function.
@@ -56,9 +79,28 @@ export const GetPlayerCache: () => PlayerCache = (() => {
             hp: 4,
             wood: 888,
         },
+
+        counters: {},
+        areCountersLoaded: false,
     };
+
     return () => cache;
 })();
+
+/**
+ * Load counters from /data/counter.json into cache.
+ */
+async function LoadCounters(): Promise<boolean> {
+    const cache = GetPlayerCache();
+    if (cache.areCountersLoaded) return false;
+    return fetch("../data/counter.json")
+        .then((response) => response.json())
+        .then((json: { counters: CounterData }) => {
+            cache.counters = json.counters;
+            cache.areCountersLoaded = true;
+            return true;
+        });
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +123,9 @@ function ListenClickEvents() {
  * Init all inventory systems.
  * Run this once at game start.
  */
-export function Init() {
+export async function Init(): Promise<boolean> {
     ListenClickEvents();
+    return LoadCounters();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,25 +136,21 @@ export function Init() {
  * Dispatch a {@link NumChangeEvent} named "adjust".
  */
 export function AdjustNum(key: string, amount: number) {
-    const playerCache = GetPlayerCache();
-    const buildingCache = GetBuildingCache();
+    const cache = GetPlayerCache();
 
-    playerCache.current[key] += amount;
-    if (playerCache.current[key] > playerCache.max[key])
-        playerCache.current[key] = playerCache.max[key];
-    if (playerCache.current[key] < playerCache.min[key])
-        playerCache.current[key] = playerCache.min[key];
-
-    for (const building of buildingCache.buildings || [])
-        for (const counter of building.counters || [])
-            if (counter.key == key) counter.value = playerCache.current[key];
+    cache.current[key] += amount;
+    if (cache.current[key] > cache.max[key])
+        cache.current[key] = cache.max[key];
+    if (cache.current[key] < cache.min[key])
+        cache.current[key] = cache.min[key];
+    if (cache.counters[key]) cache.counters[key].value = cache.current[key];
 
     window.dispatchEvent(
         new CustomEvent<NumChange>("adjust", {
             detail: {
                 key: key,
                 change: amount,
-                newTotal: playerCache.current[key],
+                newTotal: cache.current[key],
             },
         })
     );

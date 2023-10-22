@@ -6,15 +6,7 @@
             "desc": "A humble resting place.",
             "iconURI": "../vendor/game-icons/campfire.svg",
             "portraitURI": "../vendor/game-icons/campfire.svg",
-            "counters": [
-                {
-                    "key": "hp",
-                    "name": "Health",
-                    "desc": "Current player health.",
-                    "emblem": "❤️",
-                    "value": 2
-                }
-            ],
+            "counterIDs": ["hp"],
             "actions": [
                 {
                     "iconURI": "../vendor/game-icons/backward-time.svg",
@@ -31,11 +23,13 @@
             "desc": "A punchable tree.",
             "iconURI": "../vendor/game-icons/beech.svg",
             "portraitURI": "../vendor/game-icons/beech.svg",
+            "counterIDs": ["hp"],
             "actions": [
                 {
                     "iconURI": "../vendor/game-icons/punch.svg",
                     "adjust": {
-                        "wood": 1
+                        "wood": 1,
+                        "hp": -1
                     }
                 }
             ]

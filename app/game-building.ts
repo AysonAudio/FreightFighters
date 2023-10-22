@@ -3,13 +3,7 @@ export type Building = {
     desc: string;
     iconURI: string;
     portraitURI: string;
-    counters: {
-        key: string;
-        name: string;
-        desc: string;
-        emblem: string;
-        value: number;
-    }[];
+    counterIDs: string[];
     actions: {
         iconURI: string;
         adjust?: {
@@ -50,6 +44,7 @@ type BuildingCache = {
     selected: number | undefined;
     /** Spawned buildings. */
     buildings: Building[];
+
     /** All building types in /data/building.json. */
     buildingTypes: GameBuildingData;
     /** True if buildingTypes are loaded. */
@@ -64,8 +59,9 @@ type BuildingCache = {
 export const GetBuildingCache: () => BuildingCache = (() => {
     let cache: BuildingCache = {
         selected: undefined,
-        buildingTypes: {},
         buildings: [],
+
+        buildingTypes: {},
         areTypesLoaded: false,
     };
     return () => cache;
@@ -104,8 +100,9 @@ function InitClickEvents() {
  * Init all Building systems.
  * Run this once at game start.
  */
-export function Init() {
+export async function Init(): Promise<boolean> {
     InitClickEvents();
+    return LoadTypes();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,26 +112,15 @@ export function Init() {
  * Spawn a new building.
  * Dispatch a {@link BuildingSpawnEvent} named "spawn_building".
  */
-function SpawnBuilding(building: Building) {
+export function SpawnBuilding(type: Building) {
     const cache = GetBuildingCache();
-    cache.buildings.push(building);
+    cache.buildings.push(type);
     window.dispatchEvent(
         new CustomEvent<BuildingSpawn>("spawn_building", {
             detail: {
-                building: building,
+                building: type,
                 index: cache.buildings.length - 1,
             },
         })
     );
-}
-
-/**
- * Spawn buildings that the player starts the game with.
- */
-export function SpawnStarterBuildings() {
-    const cache = GetBuildingCache();
-    LoadTypes().then(() => {
-        SpawnBuilding(cache.buildingTypes.campfire);
-        SpawnBuilding(cache.buildingTypes.tree);
-    });
 }

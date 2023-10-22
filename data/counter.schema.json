@@ -1,0 +1,32 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "/data/counter.schema.json",
+    "title": "Counter",
+    "description": "UI component that shows a number variable with tally marks.",
+    "type": "object",
+    "required": ["key", "name", "desc", "emblem", "value"],
+    "properties": {
+        "key": {
+            "description": "ID and key of associated variable in JS.",
+            "type": "string"
+        },
+        "name": {
+            "description": "Tooltip title.",
+            "type": "string"
+        },
+        "desc": {
+            "description": "Tooltip description.",
+            "type": "string"
+        },
+        "emblem": {
+            "description": "Tally mark. A single unicode emoji character.",
+            "type": "string"
+        },
+        "value": {
+            "description": "Starting value in JSON. Current value in JS.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 4
+        }
+    }
+}

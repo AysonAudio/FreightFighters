@@ -5,13 +5,17 @@ import * as Menu from "./menu.js";
 
 // ========================================================================== //
 
-LibBuilding.Init();
-LibPlayer.Init();
-LibUI.Init();
 Menu.Init();
+LibUI.Init();
+LibPlayer.Init();
 
 window.addEventListener("play", (e) => {
-    LibBuilding.SpawnStarterBuildings();
+    LibBuilding.Init().then(() => {
+        const buildingCache = LibBuilding.GetBuildingCache();
+        LibBuilding.SpawnBuilding(buildingCache.buildingTypes.campfire);
+        LibBuilding.SpawnBuilding(buildingCache.buildingTypes.tree);
+    });
+
     LibUI.ShowGameDay(1);
     LibUI.SpawnEnemy();
     LibUI.SpawnEnemy();

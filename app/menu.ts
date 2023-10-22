@@ -12,10 +12,11 @@ type MenuCache = {
 type MenuFunc<Return> = (cache: MenuCache, ...args) => Return;
 
 /**
- * A decorator factory.
- * Manages one global {@link MenuCache} object and passes it to functions.
+ * A decorated function.
+ * One global {@link MenuCache} object is initialized in the decorator.
+ * Calling the resulting function returns the same object every time.
  */
-const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
+export const GetMenuCache: () => MenuCache = (() => {
     const cache: MenuCache = {
         mainMenuDiv: document.body.querySelector("#main-menu"),
         gameDiv: document.body.querySelector("#game"),
@@ -23,10 +24,7 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
             "#main-menu > .buttons > .play"
         ),
     };
-
-    return (func) => {
-        return (...args) => func(cache, ...args);
-    };
+    return () => cache;
 })();
 
 // ========================================================================== //
@@ -37,10 +35,11 @@ const CACHE: <Return>(func: MenuFunc<Return>) => (...args) => Return = (() => {
  * - Unhide Game.
  * - Dispatch "play" event.
  */
-export const Init: () => void = CACHE((cache: MenuCache) => {
+export function Init() {
+    const cache = GetMenuCache();
     cache.playButton.onclick = () => {
         cache.mainMenuDiv.style.display = "none";
         cache.gameDiv.style.display = "";
         window.dispatchEvent(new Event("play"));
     };
-});
+}
