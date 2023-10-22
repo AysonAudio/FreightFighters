@@ -67,13 +67,11 @@ export const GetPlayerCache: () => PlayerCache = (() => {
  * Listen for building action events.
  * - Update player resources.
  */
-function InitClickEvents() {
+function ListenClickEvents() {
     const buildingCache = GetBuildingCache();
-
     window.addEventListener("click_build", (e: CustomEvent<number>) => {
         const building = buildingCache.buildings[buildingCache.selected];
         const action = building.actions[e.detail];
-
         if (action.adjust)
             for (const key in action.adjust) AdjustNum(key, action.adjust[key]);
     });
@@ -84,7 +82,7 @@ function InitClickEvents() {
  * Run this once at game start.
  */
 export function Init() {
-    InitClickEvents();
+    ListenClickEvents();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
