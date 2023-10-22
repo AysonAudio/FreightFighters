@@ -5,8 +5,7 @@
             "key": "hp",
             "name": "Health",
             "desc": "Current player health.",
-            "emblem": "❤️",
-            "value": 2
+            "emblem": "❤️"
         }
     }
 }

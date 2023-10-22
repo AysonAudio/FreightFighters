@@ -241,9 +241,10 @@ function UpdateBuildPanelCounters(building: Building | undefined) {
         const usedSpans = building.counterIDs ? building.counterIDs.length : 0;
         for (let i = 0; i < usedSpans; i++) {
             const counter = cachePlayer.counters[building.counterIDs[i]];
+            const value = cachePlayer.current[counter.key];
             if (!counter) return;
             spans[i].style.display = "";
-            spans[i].innerHTML = counter.emblem.repeat(counter.value);
+            spans[i].innerHTML = counter.emblem.repeat(value);
         }
         for (let i = usedSpans; i < spans.length; i++) {
             spans[i].style.display = "none";
@@ -345,7 +346,8 @@ function ListenResourceEvents() {
                     if (!counter) return;
 
                     const span = cacheUI.buildPanelSpans[i];
-                    span.innerHTML = counter.emblem.repeat(counter.value);
+                    const value = cachePlayer.current[counter.key];
+                    span.innerHTML = counter.emblem.repeat(value);
                 }
         }
     });

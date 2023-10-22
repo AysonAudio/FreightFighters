@@ -7,7 +7,7 @@
     "required": ["key", "name", "desc", "emblem", "value"],
     "properties": {
         "key": {
-            "description": "ID and key of associated variable in JS.",
+            "description": "Counter ID, and key of associated variable in JS.",
             "type": "string"
         },
         "name": {
@@ -21,12 +21,6 @@
         "emblem": {
             "description": "Tally mark. A single unicode emoji character.",
             "type": "string"
-        },
-        "value": {
-            "description": "Starting value in JSON. Current value in JS.",
-            "type": "number",
-            "minimum": 0,
-            "maximum": 4
         }
     }
 }

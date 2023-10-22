@@ -8,7 +8,6 @@ export type Counter = {
     name: string;
     desc: string;
     emblem: string;
-    value: number;
 };
 
 /** A JSON object containing counters. */
@@ -25,7 +24,7 @@ interface CounterData extends CounterJSON {
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Number variables. */
-type PlayerNums = {
+export type PlayerNums = {
     /** Game days. */
     days: number;
     /** Player health points. */
@@ -110,12 +109,21 @@ async function LoadCounters(): Promise<boolean> {
  * - Update player resources.
  */
 function ListenClickEvents() {
+    const playerCache = GetPlayerCache();
     const buildingCache = GetBuildingCache();
+
     window.addEventListener("click_build", (e: CustomEvent<number>) => {
         const building = buildingCache.buildings[buildingCache.selected];
         const action = building.actions[e.detail];
-        if (action.adjust)
+
+        for (const key in action.min)
+            if (playerCache.current[key] < action.min[key]) return;
+        for (const key in action.max)
+            if (playerCache.current[key] >= action.max[key]) return;
+
+        if (action.adjust) {
             for (const key in action.adjust) AdjustNum(key, action.adjust[key]);
+        }
     });
 }
 
@@ -143,7 +151,6 @@ export function AdjustNum(key: string, amount: number) {
         cache.current[key] = cache.max[key];
     if (cache.current[key] < cache.min[key])
         cache.current[key] = cache.min[key];
-    if (cache.counters[key]) cache.counters[key].value = cache.current[key];
 
     window.dispatchEvent(
         new CustomEvent<NumChange>("adjust", {

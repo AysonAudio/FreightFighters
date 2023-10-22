@@ -5,6 +5,27 @@
     "description": "Design a new building.",
     "type": "object",
     "required": ["name", "desc", "iconURI", "portraitURI"],
+
+    "definitions": {
+        "resourceSheet": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "description": "Game days.",
+                    "type": "number"
+                },
+                "hp": {
+                    "description": "Player health points.",
+                    "type": "number"
+                },
+                "wood": {
+                    "description": "Player wood resources.",
+                    "type": "number"
+                }
+            }
+        }
+    },
+
     "properties": {
         "name": {
             "description": "Title text.",
@@ -45,21 +66,15 @@
                     },
                     "adjust": {
                         "description": "Adjust resources, by a positive or negative amount.",
-                        "type": "object",
-                        "properties": {
-                            "days": {
-                                "description": "Game days.",
-                                "type": "number"
-                            },
-                            "hp": {
-                                "description": "Player health points.",
-                                "type": "number"
-                            },
-                            "wood": {
-                                "description": "Player wood resources.",
-                                "type": "number"
-                            }
-                        }
+                        "$ref": "#/definitions/resourceSheet"
+                    },
+                    "min": {
+                        "description": "Resource minimums.",
+                        "$ref": "#/definitions/resourceSheet"
+                    },
+                    "max": {
+                        "description": "Resource maximums.",
+                        "$ref": "#/definitions/resourceSheet"
                     }
                 }
             }

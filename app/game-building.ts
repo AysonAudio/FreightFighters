@@ -1,3 +1,8 @@
+import type { PlayerNums } from "./game-player";
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 export type Building = {
     name: string;
     desc: string;
@@ -6,11 +11,9 @@ export type Building = {
     counterIDs: string[];
     actions: {
         iconURI: string;
-        adjust?: {
-            days?: number;
-            hp?: number;
-            wood?: number;
-        };
+        adjust?: PlayerNums;
+        min?: PlayerNums;
+        max?: PlayerNums;
     }[];
 };
 
