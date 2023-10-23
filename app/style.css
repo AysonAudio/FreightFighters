@@ -243,6 +243,7 @@ body {
     padding: 2vh 6vw;
     gap: 2vh 6vw;
     box-sizing: border-box;
+    border-radius: 1vmax 4vmax;
     background: linear-gradient(rosybrown, #500017);
     box-shadow: inset #500017 0 -4vh;
 }
