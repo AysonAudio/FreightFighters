@@ -3,73 +3,75 @@ import type { Panel } from "./game-ui";
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-export type Building = Panel & {
-    iconURI: string;
+export type Enemy = Panel & {
+    name: string;
+    artURI: string;
+    danger: number;
+    hp: number;
 };
 
-export type BuildingSpawn = {
-    building: Building;
+export type EnemySpawn = {
+    enemy: Enemy;
     index: number;
 };
 
-export type BuildingSpawnEvent = CustomEvent<BuildingSpawn>;
+export type EnemySpawnEvent = CustomEvent<EnemySpawn>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/** A JSON object containing building types. */
-interface BuildingJSON {
-    [key: string]: Building;
+/** A JSON object containing enemy types. */
+interface EnemyJSON {
+    [key: string]: Enemy;
 }
 
-/** All building types in /data/building.json. */
-interface BuildingData extends BuildingJSON {
-    campfire?: Building;
-    tree?: Building;
+/** All enemy types in /data/enemy.json. */
+interface EnemyData extends EnemyJSON {
+    zombie?: Enemy;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/** Global building variables. */
-type BuildingCache = {
-    /** Index of currently selected building. Undefined if nothing selected. */
+/** Global enemy variables. */
+type EnemyCache = {
+    /** Index of currently selected enemy. Undefined if nothing selected. */
     selected: number | undefined;
-    /** Spawned buildings. */
-    buildings: Building[];
+    /** Spawned enemies. */
+    enemies: Enemy[];
 
-    /** All building types in /data/building.json. */
-    buildingTypes: BuildingData;
-    /** True if buildingTypes are loaded. */
+    /** All enemy types in /data/enemy.json. */
+    enemyTypes: EnemyData;
+    /** True if enemyTypes are loaded. */
     areTypesLoaded: boolean;
 };
 
 /**
  * A decorated function.
- * One global {@link BuildingCache} object is initialized in the decorator.
+ * One global {@link EnemyCache} object is initialized in the decorator.
  * Calling the resulting function returns the same object every time.
  */
-export const GetBuildingCache: () => BuildingCache = (() => {
-    let cache: BuildingCache = {
+export const GetEnemyCache: () => EnemyCache = (() => {
+    let cache: EnemyCache = {
         selected: undefined,
-        buildings: [],
+        enemies: [],
 
-        buildingTypes: {},
+        enemyTypes: {},
         areTypesLoaded: false,
     };
     return () => cache;
 })();
 
 /**
- * Load building types from /data/building.json into cache.
+ * Load enemy types from /data/enemy.json into cache.
  */
 async function LoadTypes(): Promise<boolean> {
-    const cache = GetBuildingCache();
+    const cache = GetEnemyCache();
     if (cache.areTypesLoaded) return false;
-    return fetch("../data/building.json")
+    return fetch("../data/enemy.json")
         .then((response) => response.json())
-        .then((json: { buildings: BuildingData }) => {
-            cache.buildingTypes = json.buildings;
+        .then((json: { enemies: EnemyData }) => {
+            cache.enemyTypes = json.enemies;
             cache.areTypesLoaded = true;
             return true;
         });
@@ -83,14 +85,14 @@ async function LoadTypes(): Promise<boolean> {
  * - Update cache.selected.
  */
 function InitClickEvents() {
-    const cache = GetBuildingCache();
-    window.addEventListener("click_grid", (e: CustomEvent<number>) => {
+    const cache = GetEnemyCache();
+    window.addEventListener("click_enemy", (e: CustomEvent<number>) => {
         cache.selected = e.detail;
     });
 }
 
 /**
- * Init all Building systems.
+ * Init all Enemy systems.
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {
@@ -102,17 +104,17 @@ export async function Init(): Promise<boolean> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Spawn a new building.
- * Dispatch a {@link BuildingSpawnEvent} named "spawn_building".
+ * Spawn a new Enemy.
+ * Dispatch a {@link EnemySpawnEvent} named "spawn_enemy".
  */
-export function SpawnBuilding(type: Building) {
-    const cache = GetBuildingCache();
-    cache.buildings.push(type);
+export function SpawnEnemy(type: Enemy) {
+    const cache = GetEnemyCache();
+    cache.enemies.push(type);
     window.dispatchEvent(
-        new CustomEvent<BuildingSpawn>("spawn_building", {
+        new CustomEvent<EnemySpawn>("spawn_enemy", {
             detail: {
-                building: type,
-                index: cache.buildings.length - 1,
+                enemy: type,
+                index: cache.enemies.length - 1,
             },
         })
     );

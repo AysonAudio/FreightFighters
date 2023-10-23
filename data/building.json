@@ -2,9 +2,10 @@
     "buildings": {
         "campfire": {
             "$schema": "./building.schema.json",
-            "name": "Campfire",
-            "desc": "A humble resting place.",
             "iconURI": "../vendor/game-icons/campfire.svg",
+
+            "title": "Campfire",
+            "desc": "A humble resting place.",
             "portraitURI": "../vendor/game-icons/campfire.svg",
             "counterIDs": ["hp"],
             "actions": [
@@ -22,9 +23,10 @@
         },
         "tree": {
             "$schema": "./building.schema.json",
-            "name": "Tree",
-            "desc": "A punchable tree.",
             "iconURI": "../vendor/game-icons/beech.svg",
+
+            "title": "Tree",
+            "desc": "A punchable tree.",
             "portraitURI": "../vendor/game-icons/beech.svg",
             "counterIDs": ["hp"],
             "actions": [

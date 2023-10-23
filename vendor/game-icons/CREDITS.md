@@ -12,3 +12,7 @@
 
 -   [Beech](https://game-icons.net/1x1/lorc/beech.html) by Lorc
 -   [Punch](https://game-icons.net/1x1/lorc/punch.html) by Lorc
+
+## Enemy Cards
+
+-   [Shambling zombie](https://game-icons.net/1x1/delapouite/shambling-zombie.html) by Delapouite

@@ -224,13 +224,14 @@ body {
     box-sizing: border-box;
     margin: 0 1vw 1vh;
     border-radius: 3vmax 3vmax 1vmax 1vmax / 6vmax;
+    overflow: hidden;
 }
 
 #game > #fight > .card > .bg-art > img {
-    max-height: 10vmin;
+    max-height: 6vmin;
     max-width: 10vmin;
-    filter: grayscale(80%);
-    box-shadow: #333 2vmin 0 2vmin, #333 -2vmin 0 2vmin;
+    /* filter: grayscale(80%); */
+    /* box-shadow: #333 2vmin 0 2vmin, #333 -2vmin 0 2vmin; */
 }
 
 /* ------------------------ */

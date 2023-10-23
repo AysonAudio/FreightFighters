@@ -1,8 +1,25 @@
 import type { Building, BuildingSpawnEvent } from "./game-building";
-import type { NumChangeEvent } from "./game-player";
+import type { Enemy, EnemySpawnEvent } from "./game-enemy";
+import type { PlayerNums, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
 import { GetPlayerCache } from "./game-player.js";
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+export type Panel = {
+    title: string;
+    desc: string;
+    portraitURI: string;
+    counterIDs: string[];
+    actions: {
+        iconURI: string;
+        adjust?: PlayerNums;
+        min?: PlayerNums;
+        max?: PlayerNums;
+    }[];
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,33 +162,6 @@ export function ShowGameDay(day: number) {
     );
 }
 
-/**
- * Spawn a new enemy card in fight bar.
- * Set onclick for new enemy card:
- * - Show Combat Panel and hide other panels.
- */
-export function SpawnEnemy() {
-    const cache = GetCacheUI();
-    let addedEnemy: HTMLButtonElement;
-
-    cache.fightBarDiv.appendChild(cache.enemyTemplate.content.cloneNode(true));
-    addedEnemy = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
-
-    addedEnemy.animate(
-        [{ transform: "translateX(100vw)" }, { transform: "translateX(0)" }],
-        {
-            easing: "cubic-bezier(0, 1, 0.4, 1)",
-            duration: 1000,
-            iterations: 1,
-        }
-    );
-
-    addedEnemy.onclick = () => {
-        cache.combatPanelDiv.style.display = "";
-        cache.buildPanelDiv.style.display = "none";
-    };
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +170,7 @@ function UpdateBuildPanelText(building: Building | undefined) {
     if (building) {
         cache.buildPanelHeading.style.display = "";
         cache.buildPanelParagraph.style.display = "";
-        cache.buildPanelHeading.innerHTML = building.name;
+        cache.buildPanelHeading.innerHTML = building.title;
         cache.buildPanelParagraph.innerHTML = building.desc;
     } else {
         cache.buildPanelHeading.style.display = "none";
@@ -310,12 +300,57 @@ function ListenButtonEvents() {
 
 /**
  * Listen for building spawn event:
- * - Update Building Grid UI.
+ * - Set Grid button icon.
  */
 function ListenBuildingEvents() {
     const cache = GetCacheUI();
     window.addEventListener("spawn_building", (e: BuildingSpawnEvent) => {
         cache.gridButtonImgs[e.detail.index].src = e.detail.building.iconURI;
+    });
+}
+
+/**
+ * Listen for enemy spawn event:
+ * - Clone a new enemy card into fight bar.
+ * - Set card title, art, danger, and hp.
+ * - Animate: Slide from right.
+ * - Set onclick: Show Combat Panel and hide other panels.
+ */
+function ListenEnemyEvents() {
+    const cache = GetCacheUI();
+    window.addEventListener("spawn_enemy", (e: EnemySpawnEvent) => {
+        let card: HTMLButtonElement;
+        let cardTitle: HTMLHeadingElement;
+        let cardArt: HTMLImageElement;
+        let cardCounters: NodeListOf<HTMLSpanElement>;
+
+        cache.fightBarDiv.append(cache.enemyTemplate.content.cloneNode(true));
+        card = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
+        cardTitle = card.querySelector(".title");
+        cardArt = card.querySelector(".bg-art > img");
+        cardCounters = card.querySelectorAll(".counters > *");
+
+        cardTitle.innerHTML = e.detail.enemy.name;
+        cardArt.src = e.detail.enemy.artURI;
+        cardCounters[0].innerHTML = "☠️" + e.detail.enemy.danger + "%";
+        cardCounters[1].innerHTML = "" + e.detail.enemy.hp + "🤍";
+
+        card.animate(
+            [
+                { transform: "translateX(100vw)" },
+                { transform: "translateX(0)" },
+            ],
+            {
+                easing: "cubic-bezier(0, 1, 0.4, 1)",
+                duration: 1000,
+                iterations: 1,
+            }
+        );
+
+        card.onclick = () => {
+            cache.combatPanelDiv.style.display = "";
+            cache.buildPanelDiv.style.display = "none";
+        };
     });
 }
 
@@ -364,5 +399,6 @@ export function Init() {
     SetButtonEvents();
     ListenButtonEvents();
     ListenBuildingEvents();
+    ListenEnemyEvents();
     ListenResourceEvents();
 }

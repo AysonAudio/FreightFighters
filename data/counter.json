@@ -3,7 +3,7 @@
         "hp": {
             "$schema": "./counter.schema.json",
             "key": "hp",
-            "name": "Health",
+            "title": "Health",
             "desc": "Current player health.",
             "emblem": "❤️"
         }

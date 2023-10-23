@@ -1,0 +1,11 @@
+{
+    "enemies": {
+        "zombie": {
+            "$schema": "./enemy.schema.json",
+            "name": "Zombie",
+            "artURI": "../vendor/game-icons/shambling-zombie.svg",
+            "danger": 20,
+            "hp": 1
+        }
+    }
+}

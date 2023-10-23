@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "/data/enemy.schema.json",
+    "title": "Enemy",
+    "description": "Design a new Enemy.",
+    "type": "object",
+    "required": ["name", "artURI", "danger", "hp"],
+
+    "$ref": "ui-panel.schema.json",
+    "properties": {
+        "name": {
+            "description": "Card title.",
+            "type": "string"
+        },
+        "artURI": {
+            "description": "Card art.",
+            "type": "string"
+        },
+        "danger": {
+            "description": "Percent chance to attack on day end.",
+            "type": "number"
+        },
+        "hp": {
+            "description": "Health points.",
+            "type": "number"
+        }
+    }
+}

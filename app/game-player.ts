@@ -5,7 +5,7 @@ import { GetBuildingCache } from "./game-building.js";
 
 export type Counter = {
     key: string;
-    name: string;
+    title: string;
     desc: string;
     emblem: string;
 };

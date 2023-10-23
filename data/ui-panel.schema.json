@@ -1,0 +1,74 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema",
+    "$id": "/data/ui-panel.schema.json",
+    "title": "UI Panel",
+    "description": "Properties needed to populate a UI Panel.",
+    "type": "object",
+
+    "definitions": {
+        "resourceSheet": {
+            "type": "object",
+            "properties": {
+                "days": {
+                    "description": "Game days.",
+                    "type": "number"
+                },
+                "hp": {
+                    "description": "Player health points.",
+                    "type": "number"
+                },
+                "wood": {
+                    "description": "Player wood resources.",
+                    "type": "number"
+                }
+            }
+        }
+    },
+
+    "properties": {
+        "title": {
+            "description": "Panel title.",
+            "type": "string"
+        },
+        "desc": {
+            "description": "Panel desc.",
+            "type": "string"
+        },
+        "counterIDs": {
+            "description": "Counters to display UI info for.",
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+                "description": "ID of object from counter.json.",
+                "type": "string"
+            }
+        },
+        "actions": {
+            "description": "Define 0-4 buttons that run gameplay functions.",
+            "type": "array",
+            "maxItems": 4,
+            "items": {
+                "type": "object",
+                "required": ["iconURI"],
+                "properties": {
+                    "iconURI": {
+                        "description": "Art asset path.",
+                        "type": "string"
+                    },
+                    "adjust": {
+                        "description": "Adjust resources, by a positive or negative amount.",
+                        "$ref": "#/definitions/resourceSheet"
+                    },
+                    "min": {
+                        "description": "Resource minimums.",
+                        "$ref": "#/definitions/resourceSheet"
+                    },
+                    "max": {
+                        "description": "Resource maximums.",
+                        "$ref": "#/definitions/resourceSheet"
+                    }
+                }
+            }
+        }
+    }
+}
