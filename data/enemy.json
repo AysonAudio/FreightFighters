@@ -5,7 +5,12 @@
             "name": "Zombie",
             "artURI": "../vendor/game-icons/shambling-zombie.svg",
             "danger": 20,
-            "hp": 1
+            "hp": 1,
+
+            "title": "Zombie",
+            "desc": "A weak enemy.",
+            "portraitURI": "../vendor/game-icons/shambling-zombie.svg",
+            "counterIDs": ["hp"]
         }
     }
 }

@@ -10,12 +10,8 @@
             "description": "Counter ID, and key of associated variable in JS.",
             "type": "string"
         },
-        "title": {
-            "description": "Tooltip title.",
-            "type": "string"
-        },
-        "desc": {
-            "description": "Tooltip description.",
+        "tooltip": {
+            "description": "Description text shown on pointer hovers.",
             "type": "string"
         },
         "emblem": {

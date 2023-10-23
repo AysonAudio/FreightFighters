@@ -3,6 +3,7 @@ import type { Enemy, EnemySpawnEvent } from "./game-enemy";
 import type { PlayerNums, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
+import { GetEnemyCache } from "./game-enemy.js";
 import { GetPlayerCache } from "./game-player.js";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,30 +40,22 @@ type CacheUI = {
     gridButtonImgs: NodeListOf<HTMLImageElement>;
 
     /**
-     * Build Panel.
-     * Unhides and shows details when a building is clicked on.
-     * Hides all other panels.
+     * Panel.
+     * Unhides and shows details when a building or enemy is clicked on.
      */
-    buildPanelDiv: HTMLDivElement;
+    panelDiv: HTMLDivElement;
     /** Building name. */
-    buildPanelHeading: HTMLHeadingElement;
+    panelHeading: HTMLHeadingElement;
     /** Building portrait. */
-    buildPanelImage: HTMLImageElement;
+    panelImage: HTMLImageElement;
     /** Building counters. */
-    buildPanelSpans: NodeListOf<HTMLSpanElement>;
+    panelSpans: NodeListOf<HTMLSpanElement>;
     /** Building description. */
-    buildPanelParagraph: HTMLParagraphElement;
+    panelParagraph: HTMLParagraphElement;
     /** Building actions. */
-    buildPanelButtons: NodeListOf<HTMLButtonElement>;
+    panelButtons: NodeListOf<HTMLButtonElement>;
     /** Building action icons. */
-    buildPanelSubimages: NodeListOf<HTMLImageElement>;
-
-    /**
-     * Combat Panel.
-     * Unhides and shows details when an enemy is clicked on.
-     * Hides all other panels.
-     */
-    combatPanelDiv: HTMLDivElement;
+    panelSubimages: NodeListOf<HTMLImageElement>;
 
     /**
      * Fight Bar.
@@ -103,27 +96,17 @@ export const GetCacheUI: () => CacheUI = (() => {
             "#game > .grid > button > img"
         ),
 
-        buildPanelDiv: document.body.querySelector("#game > #build"),
-        buildPanelHeading: document.body.querySelector(
-            "#game > #build > .title"
+        panelDiv: document.body.querySelector("#game > .panel"),
+        panelHeading: document.body.querySelector("#game > .panel > .title"),
+        panelImage: document.body.querySelector("#game > .panel > .portrait"),
+        panelSpans: document.body.querySelectorAll(
+            "#game > .panel > .mini-bar"
         ),
-        buildPanelImage: document.body.querySelector(
-            "#game > #build > .portrait"
+        panelParagraph: document.body.querySelector("#game > .panel > .desc"),
+        panelButtons: document.body.querySelectorAll("#game > .panel > button"),
+        panelSubimages: document.body.querySelectorAll(
+            "#game > .panel > button > img"
         ),
-        buildPanelSpans: document.body.querySelectorAll(
-            "#game > #build > .mini-bar"
-        ),
-        buildPanelParagraph: document.body.querySelector(
-            "#game > #build > .desc"
-        ),
-        buildPanelButtons: document.body.querySelectorAll(
-            "#game > #build > button"
-        ),
-        buildPanelSubimages: document.body.querySelectorAll(
-            "#game > #build > button > img"
-        ),
-
-        combatPanelDiv: document.body.querySelector("#game > #combat"),
 
         fightBarDiv: document.body.querySelector("#game > #fight"),
 
@@ -165,45 +148,43 @@ export function ShowGameDay(day: number) {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-function UpdateBuildPanelText(building: Building | undefined) {
+function UpdatePanelText(obj: Building | Enemy | undefined) {
     const cache = GetCacheUI();
-    if (building) {
-        cache.buildPanelHeading.style.display = "";
-        cache.buildPanelParagraph.style.display = "";
-        cache.buildPanelHeading.innerHTML = building.title;
-        cache.buildPanelParagraph.innerHTML = building.desc;
+    if (obj) {
+        cache.panelHeading.style.display = "";
+        cache.panelParagraph.style.display = "";
+        cache.panelHeading.innerHTML = obj.title;
+        cache.panelParagraph.innerHTML = obj.desc;
     } else {
-        cache.buildPanelHeading.style.display = "none";
-        cache.buildPanelParagraph.style.display = "none";
-        cache.buildPanelHeading.innerHTML = "";
-        cache.buildPanelParagraph.innerHTML = "";
+        cache.panelHeading.style.display = "none";
+        cache.panelParagraph.style.display = "none";
+        cache.panelHeading.innerHTML = "";
+        cache.panelParagraph.innerHTML = "";
     }
 }
 
 // ------------------------ //
 
-function UpdateBuildPanelPortrait(building: Building | undefined) {
+function UpdatePanelPortrait(obj: Building | Enemy | undefined) {
     const cache = GetCacheUI();
-    if (building) {
-        cache.buildPanelImage.style.display = "";
-        cache.buildPanelImage.src = building.portraitURI;
+    if (obj) {
+        cache.panelImage.style.display = "";
+        cache.panelImage.src = obj.portraitURI;
     } else {
-        cache.buildPanelImage.style.display = "none";
-        cache.buildPanelImage.src = "";
+        cache.panelImage.style.display = "none";
+        cache.panelImage.src = "";
     }
 }
 
 // ------------------------ //
 
-function UpdateBuildPanelButtons(building: Building | undefined) {
+function UpdatePanelButtons(obj: Building | Enemy | undefined) {
     const cache = GetCacheUI();
-    const buttons = cache.buildPanelButtons;
-    const imgs = cache.buildPanelSubimages;
+    const buttons = cache.panelButtons;
+    const imgs = cache.panelSubimages;
 
-    if (building) {
-        const actions = building.actions;
-        if (!actions) return;
-
+    if (obj) {
+        const actions = obj.actions || [];
         for (let i = 0; i < actions.length; i++) {
             buttons[i].style.display = "";
             imgs[i].src = actions[i].iconURI;
@@ -222,17 +203,18 @@ function UpdateBuildPanelButtons(building: Building | undefined) {
 
 // ------------------------ //
 
-function UpdateBuildPanelCounters(building: Building | undefined) {
+function UpdatePanelCounters(obj: Building | Enemy | undefined) {
     const cacheUI = GetCacheUI();
     const cachePlayer = GetPlayerCache();
-    const spans = cacheUI.buildPanelSpans;
+    const spans = cacheUI.panelSpans;
 
-    if (building) {
-        const usedSpans = building.counterIDs ? building.counterIDs.length : 0;
+    if (obj) {
+        const usedSpans = obj.counterIDs ? obj.counterIDs.length : 0;
         for (let i = 0; i < usedSpans; i++) {
-            const counter = cachePlayer.counters[building.counterIDs[i]];
+            const counter = cachePlayer.counters[obj.counterIDs[i]];
+            if (!counter) continue;
+
             const value = cachePlayer.current[counter.key];
-            if (!counter) return;
             spans[i].style.display = "";
             spans[i].innerHTML = counter.emblem.repeat(value);
         }
@@ -250,11 +232,11 @@ function UpdateBuildPanelCounters(building: Building | undefined) {
 
 // ------------------------ //
 
-function UpdateBuildPanel(building: Building | undefined) {
-    UpdateBuildPanelText(building);
-    UpdateBuildPanelPortrait(building);
-    UpdateBuildPanelButtons(building);
-    UpdateBuildPanelCounters(building);
+function UpdatePanel(obj: Building | Enemy | undefined) {
+    UpdatePanelText(obj);
+    UpdatePanelPortrait(obj);
+    UpdatePanelButtons(obj);
+    UpdatePanelCounters(obj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,10 +254,12 @@ function SetButtonEvents() {
         cache.gridButtons[i].onclick = () =>
             window.dispatchEvent(new CustomEvent("click_grid", { detail: i }));
     }
-    // Building Panel //
-    for (let i = 0; i < cache.buildPanelButtons.length; i++) {
-        cache.buildPanelButtons[i].onclick = () =>
-            window.dispatchEvent(new CustomEvent("click_build", { detail: i }));
+    // Panel //
+    for (let i = 0; i < cache.panelButtons.length; i++) {
+        cache.panelButtons[i].onclick = () =>
+            window.dispatchEvent(
+                new CustomEvent("click_action", { detail: i })
+            );
     }
 }
 
@@ -283,18 +267,25 @@ function SetButtonEvents() {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Listen for Grid click event:
- * - Update Build Panel text and images to match the selected building.
- * - Unhide Build Panel. Hide all other panels.
+ * Listen for Building and Enemy click events:
+ * - Unhide and update Panel to show selected building's details.
+ * - Set Panel id to apply build-related-css.
  */
 function ListenButtonEvents() {
     const cache = GetCacheUI();
     window.addEventListener("click_grid", (e: CustomEvent<number>) => {
         const buildingCache = GetBuildingCache();
         const building = buildingCache.buildings[e.detail];
-        UpdateBuildPanel(building);
-        cache.buildPanelDiv.style.display = "";
-        cache.combatPanelDiv.style.display = "none";
+        UpdatePanel(building);
+        cache.panelDiv.style.display = "";
+        cache.panelDiv.id = "build";
+    });
+    window.addEventListener("click_enemy", (e: CustomEvent<number>) => {
+        const enemyCache = GetEnemyCache();
+        const enemy = enemyCache.enemies[e.detail];
+        UpdatePanel(enemy);
+        cache.panelDiv.style.display = "";
+        cache.panelDiv.id = "combat";
     });
 }
 
@@ -314,7 +305,9 @@ function ListenBuildingEvents() {
  * - Clone a new enemy card into fight bar.
  * - Set card title, art, danger, and hp.
  * - Animate: Slide from right.
- * - Set onclick: Show Combat Panel and hide other panels.
+ * - Set onclick:
+ *     - Dispatch a CustomEvent. Event.detail = button index.
+ *     - Other libraries can listen to this event to modularly add button functionality.
  */
 function ListenEnemyEvents() {
     const cache = GetCacheUI();
@@ -347,16 +340,17 @@ function ListenEnemyEvents() {
             }
         );
 
-        card.onclick = () => {
-            cache.combatPanelDiv.style.display = "";
-            cache.buildPanelDiv.style.display = "none";
-        };
+        card.onclick = () =>
+            window.dispatchEvent(
+                new CustomEvent("click_enemy", { detail: e.detail.index })
+            );
     });
 }
 
 /**
  * Listen for player variable change events:
- * - Update UI numbers.
+ * - Update dashboard.
+ * - Update panel counters.
  * - Show toast animation if game day changes.
  */
 function ListenResourceEvents() {
@@ -378,9 +372,9 @@ function ListenResourceEvents() {
             for (let i = 0; i < building.counterIDs.length; i++)
                 if (e.detail.key == building.counterIDs[i]) {
                     const counter = cachePlayer.counters[e.detail.key];
-                    if (!counter) return;
+                    if (!counter) continue;
 
-                    const span = cacheUI.buildPanelSpans[i];
+                    const span = cacheUI.panelSpans[i];
                     const value = cachePlayer.current[counter.key];
                     span.innerHTML = counter.emblem.repeat(value);
                 }

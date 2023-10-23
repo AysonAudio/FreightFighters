@@ -105,14 +105,14 @@ async function LoadCounters(): Promise<boolean> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Listen for building action events.
+ * Listen for panel action events.
  * - Update player resources.
  */
 function ListenClickEvents() {
     const playerCache = GetPlayerCache();
     const buildingCache = GetBuildingCache();
 
-    window.addEventListener("click_build", (e: CustomEvent<number>) => {
+    window.addEventListener("click_action", (e: CustomEvent<number>) => {
         const building = buildingCache.buildings[buildingCache.selected];
         const action = building.actions[e.detail];
 
