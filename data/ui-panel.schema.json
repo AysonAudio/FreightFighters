@@ -1,6 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "/data/ui-panel.schema.json",
+
     "title": "UI Panel",
     "description": "Properties needed to populate a UI Panel.",
     "type": "object",
@@ -25,6 +26,7 @@
         }
     },
 
+    "required": ["title", "desc", "portraitURI"],
     "properties": {
         "title": {
             "description": "Panel title.",
@@ -34,8 +36,13 @@
             "description": "Panel desc.",
             "type": "string"
         },
+        "portraitURI": {
+            "description": "Panel image.",
+            "type": "string"
+        },
+
         "counterIDs": {
-            "description": "Counters to display UI info for.",
+            "description": "Link 0-3 counters to display UI info for.",
             "type": "array",
             "maxItems": 3,
             "items": {
@@ -43,6 +50,7 @@
                 "type": "string"
             }
         },
+
         "actions": {
             "description": "Define 0-4 buttons that run gameplay functions.",
             "type": "array",

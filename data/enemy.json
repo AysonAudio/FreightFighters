@@ -2,6 +2,7 @@
     "enemies": {
         "zombie": {
             "$schema": "./enemy.schema.json",
+
             "name": "Zombie",
             "artURI": "../vendor/game-icons/shambling-zombie.svg",
             "danger": 20,
@@ -9,8 +10,7 @@
 
             "title": "Zombie",
             "desc": "A weak enemy.",
-            "portraitURI": "../vendor/game-icons/shambling-zombie.svg",
-            "counterIDs": ["hp"]
+            "portraitURI": "../vendor/game-icons/shambling-zombie.svg"
         }
     }
 }

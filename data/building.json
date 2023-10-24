@@ -7,6 +7,7 @@
             "title": "Campfire",
             "desc": "A humble resting place.",
             "portraitURI": "../vendor/game-icons/campfire.svg",
+
             "counterIDs": ["hp"],
             "actions": [
                 {
@@ -21,6 +22,7 @@
                 }
             ]
         },
+
         "tree": {
             "$schema": "./building.schema.json",
             "iconURI": "../vendor/game-icons/beech.svg",
@@ -28,6 +30,7 @@
             "title": "Tree",
             "desc": "A punchable tree.",
             "portraitURI": "../vendor/game-icons/beech.svg",
+
             "counterIDs": ["hp"],
             "actions": [
                 {

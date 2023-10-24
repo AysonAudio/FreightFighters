@@ -2,10 +2,9 @@
     "counters": {
         "hp": {
             "$schema": "./counter.schema.json",
-            "key": "hp",
-            "title": "Health",
-            "desc": "Current player health.",
-            "emblem": "❤️"
+            "tooltip": "Current player hp.",
+            "emblem": "❤️",
+            "key": "hp"
         }
     }
 }

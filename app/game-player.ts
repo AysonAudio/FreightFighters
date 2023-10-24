@@ -1,14 +1,18 @@
+import type { ExactlyOne } from "./util";
+
 import { GetBuildingCache } from "./game-building.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 export type Counter = {
-    key: string;
     title: string;
     desc: string;
     emblem: string;
-};
+} & ExactlyOne<{
+    key: string;
+    number: number;
+}>;
 
 /** A JSON object containing counters. */
 interface CounterJSON {

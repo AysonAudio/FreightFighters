@@ -214,7 +214,7 @@ function UpdatePanelCounters(obj: Building | Enemy | undefined) {
             const counter = cachePlayer.counters[obj.counterIDs[i]];
             if (!counter) continue;
 
-            const value = cachePlayer.current[counter.key];
+            const value = counter.number || cachePlayer.current[counter.key];
             spans[i].style.display = "";
             spans[i].innerHTML = counter.emblem.repeat(value);
         }
@@ -375,7 +375,8 @@ function ListenResourceEvents() {
                     if (!counter) continue;
 
                     const span = cacheUI.panelSpans[i];
-                    const value = cachePlayer.current[counter.key];
+                    const value =
+                        counter.number || cachePlayer.current[counter.key];
                     span.innerHTML = counter.emblem.repeat(value);
                 }
         }
