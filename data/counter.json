@@ -1,16 +1,17 @@
 {
-    "counters": {
-        "hp": {
-            "$schema": "./counter.schema.json",
-            "tooltip": "Current player hp.",
-            "emblem": "❤️",
-            "key": "hp"
-        },
-        "zombieHP": {
-            "$schema": "./counter.schema.json",
-            "tooltip": "Manpower required to kill this.",
-            "emblem": "🤍",
-            "number": 1
-        }
+    "hp": {
+        "tooltip": "Current player hp.",
+        "emblem": "❤️",
+        "key": "hp"
+    },
+    "enemyhp1": {
+        "tooltip": "Requires 1 manpower to kill.",
+        "emblem": "🤍",
+        "number": 1
+    },
+    "renewtroops1": {
+        "tooltip": "Renews 1 manpower every day.\n(if less than total renewal)",
+        "emblem": "🤺",
+        "number": 1
     }
 }

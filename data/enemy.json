@@ -1,17 +1,13 @@
 {
-    "enemies": {
-        "zombie": {
-            "$schema": "./enemy.schema.json",
+    "zombie": {
+        "name": "Zombie",
+        "artURI": "../vendor/game-icons/shambling-zombie.svg",
+        "hitChance": 20,
+        "hitDamage": 1,
 
-            "name": "Zombie",
-            "artURI": "../vendor/game-icons/shambling-zombie.svg",
-            "hitChance": 20,
-            "hitDamage": 1,
-
-            "title": "Zombie",
-            "desc": "A weak enemy.",
-            "portraitURI": "../vendor/game-icons/shambling-zombie.svg",
-            "counterIDs": ["zombieHP"]
-        }
+        "title": "Zombie",
+        "desc": "A weak enemy.",
+        "portraitURI": "../vendor/game-icons/shambling-zombie.svg",
+        "counterIDs": ["enemyhp1"]
     }
 }

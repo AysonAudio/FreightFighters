@@ -2,17 +2,23 @@
     "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "/data/building.schema.json",
 
-    "title": "Building",
-    "description": "Design a new building.",
+    "title": "Buildings",
+    "description": "Contains all building types.",
     "type": "object",
 
-    "$ref": "ui-panel.schema.json",
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "unevaluatedProperties": false,
+            "required": ["iconURI"],
 
-    "required": ["iconURI"],
-    "properties": {
-        "iconURI": {
-            "description": "Grid button icon.",
-            "type": "string"
+            "allOf": [{ "$ref": "ui-panel.schema.json#/definitions/panel" }],
+            "properties": {
+                "iconURI": {
+                    "description": "Grid button icon.",
+                    "type": "string"
+                }
+            }
         }
     }
 }

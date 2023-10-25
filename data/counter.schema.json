@@ -2,38 +2,47 @@
     "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "/data/counter.schema.json",
 
-    "title": "Counter",
-    "description": "Number container shared between UI components.",
+    "title": "Counters",
+    "description": "Contains all UI counters.",
     "type": "object",
 
-    "required": ["tooltip", "emblem"],
-    "properties": {
-        "tooltip": {
-            "description": "Description text shown on pointer hovers.",
-            "type": "string"
-        },
-        "emblem": {
-            "description": "Tally mark. A single unicode emoji character.",
-            "type": "string"
-        }
-    },
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "unevaluatedProperties": false,
+            "required": ["tooltip", "emblem"],
 
-    "oneOf": [
-        {
             "properties": {
-                "key": {
-                    "description": "Get number from cachePlayer.current[key].",
+                "tooltip": {
+                    "description": "Description text shown on pointer hovers.",
+                    "type": "string"
+                },
+                "emblem": {
+                    "description": "Tally mark. A single unicode emoji character.",
                     "type": "string"
                 }
-            }
-        },
-        {
-            "properties": {
-                "number": {
-                    "description": "Set a static number.",
-                    "type": "string"
+            },
+
+            "oneOf": [
+                {
+                    "required": ["key"],
+                    "properties": {
+                        "key": {
+                            "description": "Get number from cachePlayer.current[key].",
+                            "type": "string"
+                        }
+                    }
+                },
+                {
+                    "required": ["number"],
+                    "properties": {
+                        "number": {
+                            "description": "Set a static number.",
+                            "type": "number"
+                        }
+                    }
                 }
-            }
+            ]
         }
-    ]
+    }
 }

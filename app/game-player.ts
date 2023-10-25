@@ -1,14 +1,11 @@
 import type { ExactlyOne } from "./util";
 import type { ActionClickEvent } from "./game-ui";
 
-import { GetBuildingCache } from "./game-building.js";
-
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 export type Counter = {
-    title: string;
-    desc: string;
+    tooltip: string;
     emblem: string;
 } & ExactlyOne<{
     key: string;
@@ -28,32 +25,45 @@ interface CounterData extends CounterJSON {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-/** Number variables. */
-export type PlayerNums = {
+export type GameNums = {
     /** Game days. */
     days: number;
+};
+export type PlayerNums = {
     /** Player health points. */
     hp: number;
     /** Player wood resources. */
     wood: number;
+    /** Player troops resources. */
+    troops: number;
 };
+export type NumVars = GameNums & PlayerNums;
 
 export type NumChange = {
-    key: string;
+    key: keyof NumVars;
     change: number;
     newTotal: number;
 };
-
 export type NumChangeEvent = CustomEvent<NumChange>;
+
+export type RenewChange = {
+    key: keyof PlayerNums;
+    change: number;
+    newTotal: number;
+};
+export type RenewChangeEvent = CustomEvent<RenewChange>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Global player variables. */
 type PlayerCache = {
-    current: PlayerNums;
+    current: NumVars;
     min: PlayerNums;
     max: PlayerNums;
+
+    /** On day end, if current < renew, set current to renew. */
+    renew: PlayerNums;
 
     /** All counters in /data/counter.json. */
     counters: CounterData;
@@ -72,16 +82,22 @@ export const GetPlayerCache: () => PlayerCache = (() => {
             days: 1,
             hp: 2,
             wood: 0,
+            troops: 0,
         },
         min: {
-            days: 1,
             hp: 0,
             wood: 0,
+            troops: 0,
         },
         max: {
-            days: 888,
             hp: 4,
             wood: 888,
+            troops: 888,
+        },
+        renew: {
+            hp: 0,
+            wood: 0,
+            troops: 0,
         },
 
         counters: {},
@@ -99,8 +115,8 @@ async function LoadCounters(): Promise<boolean> {
     if (cache.areCountersLoaded) return false;
     return fetch("../data/counter.json")
         .then((response) => response.json())
-        .then((json: { counters: CounterData }) => {
-            cache.counters = json.counters;
+        .then((json: CounterData) => {
+            cache.counters = json;
             cache.areCountersLoaded = true;
             return true;
         });
@@ -111,13 +127,26 @@ async function LoadCounters(): Promise<boolean> {
 
 /**
  * Listen for panel action events.
- * - Update player resources.
+ * - Adjust number variables.
+ * - If game day changes, add resources if current is less than renew
  */
 function ListenClickEvents() {
+    const cache = GetPlayerCache();
     window.addEventListener("click_action", (e: ActionClickEvent) => {
-        if (e.detail.action.adjust) {
-            for (const key in e.detail.action.adjust)
-                AdjustNum(key, e.detail.action.adjust[key]);
+        const adjustRenew = e.detail.action.adjustRenew;
+        const adjustCurr = e.detail.action.adjustCurr;
+
+        for (const key in adjustRenew)
+            AdjustRenew(key as keyof PlayerNums, adjustRenew[key]);
+
+        for (const key in adjustCurr) {
+            AdjustNum(key as keyof NumVars, adjustCurr[key]);
+            if (key == "days")
+                for (const key2 in cache.renew)
+                    if (cache.current[key2] < cache.renew[key2]) {
+                        const change = cache.renew[key2] - cache.current[key2];
+                        AdjustNum(key2 as keyof NumVars, change);
+                    }
         }
     });
 }
@@ -136,9 +165,9 @@ export async function Init(): Promise<boolean> {
 
 /**
  * Adjust a player resource or game variable, by a positive or negative amount.
- * Dispatch a {@link NumChangeEvent} named "adjust".
+ * Dispatch a {@link NumChangeEvent} named "adjustCurr".
  */
-export function AdjustNum(key: string, amount: number) {
+export function AdjustNum(key: keyof NumVars, amount: number) {
     const cache = GetPlayerCache();
 
     cache.current[key] += amount;
@@ -148,11 +177,29 @@ export function AdjustNum(key: string, amount: number) {
         cache.current[key] = cache.min[key];
 
     window.dispatchEvent(
-        new CustomEvent<NumChange>("adjust", {
+        new CustomEvent<NumChange>("adjustCurr", {
             detail: {
                 key: key,
                 change: amount,
                 newTotal: cache.current[key],
+            },
+        })
+    );
+}
+
+/**
+ * Adjust the amount of resources renewed on day end, by a positive or negative amount.
+ * Dispatch a {@link RenewChangeEvent} named "adjustRenew".
+ */
+export function AdjustRenew(key: keyof PlayerNums, amount: number) {
+    const cache = GetPlayerCache();
+    cache.renew[key] += amount;
+    window.dispatchEvent(
+        new CustomEvent<RenewChange>("adjustRenew", {
+            detail: {
+                key: key,
+                change: amount,
+                newTotal: cache.renew[key],
             },
         })
     );

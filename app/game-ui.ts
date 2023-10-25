@@ -1,6 +1,6 @@
 import type { Building, BuildingSpawnEvent } from "./game-building";
 import type { Enemy, EnemySpawnEvent } from "./game-enemy";
-import type { PlayerNums, NumChangeEvent } from "./game-player";
+import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
 import { GetPlayerCache } from "./game-player.js";
@@ -11,9 +11,10 @@ import { GetPlayerCache } from "./game-player.js";
 export type Action = {
     iconURI: string;
     build?: string[];
-    adjust?: PlayerNums;
-    min?: PlayerNums;
-    max?: PlayerNums;
+    adjustCurr?: NumVars;
+    adjustRenew?: PlayerNums;
+    min?: NumVars;
+    max?: NumVars;
 };
 
 export type Panel = {
@@ -27,21 +28,24 @@ export type Panel = {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-export type GridClickEvent = CustomEvent<{
+export type GridClick = {
     buttonIndex: number;
     building: Building;
-}>;
+};
+export type GridClickEvent = CustomEvent<GridClick>;
 
-export type ActionClickEvent = CustomEvent<{
+export type ActionClick = {
     buttonIndex: number;
     building: Building;
     action: Action;
-}>;
+};
+export type ActionClickEvent = CustomEvent<ActionClick>;
 
-export type EnemyClickEvent = CustomEvent<{
+export type EnemyClick = {
     buttonIndex: number;
     enemy: Enemy;
-}>;
+};
+export type EnemyClickEvent = CustomEvent<EnemyClick>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,11 +90,10 @@ type CacheUI = {
     /** Cloned to spawn a new enemy. */
     enemyTemplate: HTMLTemplateElement;
 
-    /**
-     * Wood Display.
-     * A player resource counter.
-     */
+    /** Wood Display. A player resource counter. */
     woodSpan: HTMLSpanElement;
+    /** Troops Display. A player resource counter. */
+    troopsSpan: HTMLSpanElement;
 
     /**
      * Day Toast.
@@ -134,6 +137,7 @@ export const GetCacheUI: () => CacheUI = (() => {
         enemyTemplate: document.body.querySelector("#enemy"),
 
         woodSpan: document.body.querySelector("#game > .dashboard > #wood"),
+        troopsSpan: document.body.querySelector("#game > .dashboard > #troops"),
 
         dayToastDiv: document.body.querySelector("#day"),
         dayToastHeading: document.body.querySelector("#day > h1"),
@@ -277,7 +281,7 @@ function SetButtonEvents() {
     for (let i = 0; i < cacheUI.gridButtons.length; i++) {
         cacheUI.gridButtons[i].onclick = () => {
             window.dispatchEvent(
-                new CustomEvent("click_grid", {
+                new CustomEvent<GridClick>("click_grid", {
                     detail: {
                         buttonIndex: i,
                         building: cacheBuilding.buildings[i],
@@ -300,7 +304,7 @@ function SetButtonEvents() {
                 if (cachePlayer.current[key] >= action.max[key]) return;
 
             window.dispatchEvent(
-                new CustomEvent("click_action", {
+                new CustomEvent<ActionClick>("click_action", {
                     detail: {
                         buttonIndex: i,
                         building: building,
@@ -387,7 +391,7 @@ function ListenEnemyEvents() {
 
         card.onclick = () =>
             window.dispatchEvent(
-                new CustomEvent("click_enemy", {
+                new CustomEvent<EnemyClick>("click_enemy", {
                     detail: {
                         buttonIndex: e.detail.index,
                         enemy: e.detail.enemy,
@@ -408,10 +412,12 @@ function ListenResourceEvents() {
     const cacheBuild = GetBuildingCache();
     const cachePlayer = GetPlayerCache();
 
-    window.addEventListener("adjust", (e: NumChangeEvent) => {
+    window.addEventListener("adjustCurr", (e: NumChangeEvent) => {
         if (e.detail.key == "days") ShowGameDay(e.detail.newTotal);
         else if (e.detail.key == "wood")
             cacheUI.woodSpan.innerHTML = "🌲" + e.detail.newTotal.toString();
+        else if (e.detail.key == "troops")
+            cacheUI.troopsSpan.innerHTML = "🤺" + e.detail.newTotal.toString();
         else if (e.detail.key == "hp") {
             const index = cacheBuild.selected;
             if (index == undefined) return;

@@ -1,68 +1,65 @@
 {
-    "buildings": {
-        "campfire": {
-            "$schema": "./building.schema.json",
-            "iconURI": "../vendor/game-icons/campfire.svg",
+    "campfire": {
+        "iconURI": "../vendor/game-icons/campfire.svg",
 
-            "title": "Campfire",
-            "desc": "A humble resting place.",
-            "portraitURI": "../vendor/game-icons/campfire.svg",
-
-            "counterIDs": ["hp"],
-            "actions": [
-                {
-                    "iconURI": "../vendor/game-icons/backward-time.svg",
-                    "adjust": {
-                        "days": 1,
-                        "hp": 1
-                    },
-                    "max": {
-                        "hp": 4
-                    }
-                }
-            ]
-        },
-
-        "tree": {
-            "$schema": "./building.schema.json",
-            "iconURI": "../vendor/game-icons/beech.svg",
-
-            "title": "Tree",
-            "desc": "A punchable tree.",
-            "portraitURI": "../vendor/game-icons/beech.svg",
-
-            "counterIDs": ["hp"],
-            "actions": [
-                {
-                    "iconURI": "../vendor/game-icons/punch.svg",
-                    "adjust": {
-                        "wood": 1,
-                        "hp": -1
-                    },
-                    "min": {
-                        "hp": 2
-                    }
+        "title": "Campfire",
+        "desc": "A humble resting place.",
+        "portraitURI": "../vendor/game-icons/campfire.svg",
+        "counterIDs": ["hp"],
+        "actions": [
+            {
+                "iconURI": "../vendor/game-icons/backward-time.svg",
+                "adjustCurr": {
+                    "days": 1,
+                    "hp": 1
                 },
-                {
-                    "iconURI": "../vendor/game-icons/hut.svg",
-                    "build": ["hut"],
-                    "adjust": {
-                        "wood": -4
-                    },
-                    "min": {
-                        "wood": 4
-                    }
+                "max": {
+                    "hp": 4
                 }
-            ]
-        },
+            }
+        ]
+    },
 
-        "hut": {
-            "$schema": "./building.schema.json",
-            "iconURI": "../vendor/game-icons/hut.svg",
+    "tree": {
+        "iconURI": "../vendor/game-icons/beech.svg",
 
-            "title": "Hikiko Hut",
-            "desc": "Lost souls without a cause.\nA good source of manpower.",
-            "portraitURI": "../vendor/game-icons/hut.svg"
-        }
+        "title": "Tree",
+        "desc": "A punchable tree.",
+        "portraitURI": "../vendor/game-icons/beech.svg",
+        "counterIDs": ["hp"],
+        "actions": [
+            {
+                "iconURI": "../vendor/game-icons/punch.svg",
+                "adjustCurr": {
+                    "wood": 1,
+                    "hp": -1
+                },
+                "min": {
+                    "hp": 2
+                }
+            },
+            {
+                "iconURI": "../vendor/game-icons/hut.svg",
+                "build": ["hut"],
+                "adjustRenew": {
+                    "troops": 1
+                },
+                "adjustCurr": {
+                    "wood": -4
+                },
+                "min": {
+                    "wood": 4
+                }
+            }
+        ]
+    },
+
+    "hut": {
+        "iconURI": "../vendor/game-icons/hut.svg",
+
+        "title": "Hikiko Hut",
+        "desc": "Lost souls without a cause.\nA good source of manpower.",
+        "portraitURI": "../vendor/game-icons/hut.svg",
+        "counterIDs": ["renewtroops1"]
     }
 }

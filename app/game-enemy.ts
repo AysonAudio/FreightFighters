@@ -70,8 +70,8 @@ async function LoadTypes(): Promise<boolean> {
     if (cache.areTypesLoaded) return false;
     return fetch("../data/enemy.json")
         .then((response) => response.json())
-        .then((json: { enemies: EnemyData }) => {
-            cache.enemyTypes = json.enemies;
+        .then((json: EnemyData) => {
+            cache.enemyTypes = json;
             cache.areTypesLoaded = true;
             return true;
         });

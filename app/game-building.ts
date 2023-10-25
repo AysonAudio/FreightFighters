@@ -68,8 +68,8 @@ async function LoadTypes(): Promise<boolean> {
     if (cache.areTypesLoaded) return false;
     return fetch("../data/building.json")
         .then((response) => response.json())
-        .then((json: { buildings: BuildingData }) => {
-            cache.buildingTypes = json.buildings;
+        .then((json: BuildingData) => {
+            cache.buildingTypes = json;
             cache.areTypesLoaded = true;
             return true;
         });
@@ -96,7 +96,7 @@ function ListenClickEvents() {
 function ListenActionEvents() {
     const cache = GetBuildingCache();
     window.addEventListener("click_action", (e: ActionClickEvent) => {
-        for (const id of e.detail.action.build)
+        for (const id of e.detail.action.build || [])
             SpawnBuilding(cache.buildingTypes[id]);
     });
 }

@@ -3,28 +3,34 @@
     "$id": "/data/enemy.schema.json",
 
     "title": "Enemy",
-    "description": "Design a new Enemy.",
+    "description": "Contains all enemy types.",
     "type": "object",
 
-    "$ref": "ui-panel.schema.json",
+    "patternProperties": {
+        "^.*$": {
+            "type": "object",
+            "unevaluatedProperties": false,
+            "required": ["name", "artURI", "hitChance", "hitDamage"],
 
-    "required": ["name", "artURI", "danger", "hp"],
-    "properties": {
-        "name": {
-            "description": "Card title.",
-            "type": "string"
-        },
-        "artURI": {
-            "description": "Card art.",
-            "type": "string"
-        },
-        "hitChance": {
-            "description": "Percent chance to attack on day end.",
-            "type": "number"
-        },
-        "hitDamage": {
-            "description": "Damage dealt if attack successful.",
-            "type": "number"
+            "allOf": [{ "$ref": "ui-panel.schema.json#/definitions/panel" }],
+            "properties": {
+                "name": {
+                    "description": "Card title.",
+                    "type": "string"
+                },
+                "artURI": {
+                    "description": "Card art.",
+                    "type": "string"
+                },
+                "hitChance": {
+                    "description": "Percent chance to attack on day end.",
+                    "type": "number"
+                },
+                "hitDamage": {
+                    "description": "Damage dealt if attack successful.",
+                    "type": "number"
+                }
+            }
         }
     }
 }
