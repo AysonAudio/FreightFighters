@@ -61,7 +61,7 @@
             "iconURI": "../vendor/game-icons/hut.svg",
 
             "title": "Hikiko Hut",
-            "desc": "Lost souls without a cause. A good source of manpower.",
+            "desc": "Lost souls without a cause.\nA good source of manpower.",
             "portraitURI": "../vendor/game-icons/hut.svg"
         }
     }
