@@ -3,24 +3,45 @@ import type { Enemy, EnemySpawnEvent } from "./game-enemy";
 import type { PlayerNums, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
-import { GetEnemyCache } from "./game-enemy.js";
 import { GetPlayerCache } from "./game-player.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+
+export type Action = {
+    iconURI: string;
+    build?: string[];
+    adjust?: PlayerNums;
+    min?: PlayerNums;
+    max?: PlayerNums;
+};
 
 export type Panel = {
     title: string;
     desc: string;
     portraitURI: string;
     counterIDs: string[];
-    actions: {
-        iconURI: string;
-        adjust?: PlayerNums;
-        min?: PlayerNums;
-        max?: PlayerNums;
-    }[];
+    actions: Action[];
 };
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+export type GridClickEvent = CustomEvent<{
+    buttonIndex: number;
+    building: Building;
+}>;
+
+export type ActionClickEvent = CustomEvent<{
+    buttonIndex: number;
+    building: Building;
+    action: Action;
+}>;
+
+export type EnemyClickEvent = CustomEvent<{
+    buttonIndex: number;
+    enemy: Enemy;
+}>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,18 +269,46 @@ function UpdatePanel(obj: Building | Enemy | undefined) {
  * Other libraries can listen to this event to modularly add button functionality.
  */
 function SetButtonEvents() {
-    const cache = GetCacheUI();
+    const cacheUI = GetCacheUI();
+    const cacheBuilding = GetBuildingCache();
+    const cachePlayer = GetPlayerCache();
+
     // Building Grid //
-    for (let i = 0; i < cache.gridButtons.length; i++) {
-        cache.gridButtons[i].onclick = () =>
-            window.dispatchEvent(new CustomEvent("click_grid", { detail: i }));
-    }
-    // Panel //
-    for (let i = 0; i < cache.panelButtons.length; i++) {
-        cache.panelButtons[i].onclick = () =>
+    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
+        cacheUI.gridButtons[i].onclick = () => {
             window.dispatchEvent(
-                new CustomEvent("click_action", { detail: i })
+                new CustomEvent("click_grid", {
+                    detail: {
+                        buttonIndex: i,
+                        building: cacheBuilding.buildings[i],
+                    },
+                })
             );
+        };
+    }
+
+    // Panel //
+    for (let i = 0; i < cacheUI.panelButtons.length; i++) {
+        cacheUI.panelButtons[i].onclick = () => {
+            const building = cacheBuilding.buildings[cacheBuilding.selected];
+            const action = building.actions[i];
+
+            // Dont send event if action requirements not met
+            for (const key in action.min)
+                if (cachePlayer.current[key] < action.min[key]) return;
+            for (const key in action.max)
+                if (cachePlayer.current[key] >= action.max[key]) return;
+
+            window.dispatchEvent(
+                new CustomEvent("click_action", {
+                    detail: {
+                        buttonIndex: i,
+                        building: building,
+                        action: action,
+                    },
+                })
+            );
+        };
     }
 }
 
@@ -273,17 +322,13 @@ function SetButtonEvents() {
  */
 function ListenButtonEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("click_grid", (e: CustomEvent<number>) => {
-        const buildingCache = GetBuildingCache();
-        const building = buildingCache.buildings[e.detail];
-        UpdatePanel(building);
+    window.addEventListener("click_grid", (e: GridClickEvent) => {
+        UpdatePanel(e.detail.building);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "build";
     });
-    window.addEventListener("click_enemy", (e: CustomEvent<number>) => {
-        const enemyCache = GetEnemyCache();
-        const enemy = enemyCache.enemies[e.detail];
-        UpdatePanel(enemy);
+    window.addEventListener("click_enemy", (e: EnemyClickEvent) => {
+        UpdatePanel(e.detail.enemy);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "combat";
     });
@@ -303,10 +348,10 @@ function ListenBuildingEvents() {
 /**
  * Listen for enemy spawn event:
  * - Clone a new enemy card into fight bar.
- * - Set card title, art, danger, and hp.
+ * - Set card title, art, and numbers.
  * - Animate: Slide from right.
  * - Set onclick:
- *     - Dispatch a CustomEvent. Event.detail = button index.
+ *     - Dispatch a CustomEvent.
  *     - Other libraries can listen to this event to modularly add button functionality.
  */
 function ListenEnemyEvents() {
@@ -325,8 +370,8 @@ function ListenEnemyEvents() {
 
         cardTitle.innerHTML = e.detail.enemy.name;
         cardArt.src = e.detail.enemy.artURI;
-        cardCounters[0].innerHTML = "☠️" + e.detail.enemy.danger + "%";
-        cardCounters[1].innerHTML = "" + e.detail.enemy.hp + "🤍";
+        cardCounters[0].innerHTML = "🎲" + e.detail.enemy.hitChance + "%";
+        cardCounters[1].innerHTML = "" + e.detail.enemy.hitDamage + "☠️";
 
         card.animate(
             [
@@ -342,7 +387,12 @@ function ListenEnemyEvents() {
 
         card.onclick = () =>
             window.dispatchEvent(
-                new CustomEvent("click_enemy", { detail: e.detail.index })
+                new CustomEvent("click_enemy", {
+                    detail: {
+                        buttonIndex: e.detail.index,
+                        enemy: e.detail.enemy,
+                    },
+                })
             );
     });
 }

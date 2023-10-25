@@ -1,4 +1,5 @@
 import type { ExactlyOne } from "./util";
+import type { ActionClickEvent } from "./game-ui";
 
 import { GetBuildingCache } from "./game-building.js";
 
@@ -113,20 +114,10 @@ async function LoadCounters(): Promise<boolean> {
  * - Update player resources.
  */
 function ListenClickEvents() {
-    const playerCache = GetPlayerCache();
-    const buildingCache = GetBuildingCache();
-
-    window.addEventListener("click_action", (e: CustomEvent<number>) => {
-        const building = buildingCache.buildings[buildingCache.selected];
-        const action = building.actions[e.detail];
-
-        for (const key in action.min)
-            if (playerCache.current[key] < action.min[key]) return;
-        for (const key in action.max)
-            if (playerCache.current[key] >= action.max[key]) return;
-
-        if (action.adjust) {
-            for (const key in action.adjust) AdjustNum(key, action.adjust[key]);
+    window.addEventListener("click_action", (e: ActionClickEvent) => {
+        if (e.detail.action.adjust) {
+            for (const key in e.detail.action.adjust)
+                AdjustNum(key, e.detail.action.adjust[key]);
         }
     });
 }

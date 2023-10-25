@@ -60,8 +60,16 @@
                 "required": ["iconURI"],
                 "properties": {
                     "iconURI": {
-                        "description": "Art asset path.",
+                        "description": "Button image.",
                         "type": "string"
+                    },
+                    "build": {
+                        "description": "Spawn buildings.",
+                        "type": "array",
+                        "items": {
+                            "description": "Building ID.",
+                            "type": "string"
+                        }
                     },
                     "adjust": {
                         "description": "Adjust resources, by a positive or negative amount.",

@@ -42,8 +42,27 @@
                     "min": {
                         "hp": 2
                     }
+                },
+                {
+                    "iconURI": "../vendor/game-icons/hut.svg",
+                    "build": ["hut"],
+                    "adjust": {
+                        "wood": -4
+                    },
+                    "min": {
+                        "wood": 4
+                    }
                 }
             ]
+        },
+
+        "hut": {
+            "$schema": "./building.schema.json",
+            "iconURI": "../vendor/game-icons/hut.svg",
+
+            "title": "Hikiko Hut",
+            "desc": "Lost souls without a cause. A good source of manpower.",
+            "portraitURI": "../vendor/game-icons/hut.svg"
         }
     }
 }

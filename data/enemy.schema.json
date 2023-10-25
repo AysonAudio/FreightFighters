@@ -18,12 +18,12 @@
             "description": "Card art.",
             "type": "string"
         },
-        "danger": {
+        "hitChance": {
             "description": "Percent chance to attack on day end.",
             "type": "number"
         },
-        "hp": {
-            "description": "Health points.",
+        "hitDamage": {
+            "description": "Damage dealt if attack successful.",
             "type": "number"
         }
     }

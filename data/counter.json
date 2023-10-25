@@ -5,6 +5,12 @@
             "tooltip": "Current player hp.",
             "emblem": "❤️",
             "key": "hp"
+        },
+        "zombieHP": {
+            "$schema": "./counter.schema.json",
+            "tooltip": "Manpower required to kill this.",
+            "emblem": "🤍",
+            "number": 1
         }
     }
 }

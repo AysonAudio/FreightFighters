@@ -1,4 +1,4 @@
-import type { Panel } from "./game-ui";
+import type { Panel, EnemyClickEvent } from "./game-ui";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -6,8 +6,8 @@ import type { Panel } from "./game-ui";
 export type Enemy = Panel & {
     name: string;
     artURI: string;
-    danger: number;
-    hp: number;
+    hitChance: number;
+    hitDamage: number;
 };
 
 export type EnemySpawn = {
@@ -84,10 +84,10 @@ async function LoadTypes(): Promise<boolean> {
  * Listen for button click event:
  * - Update cache.selected.
  */
-function InitClickEvents() {
+function ListenClickEvents() {
     const cache = GetEnemyCache();
-    window.addEventListener("click_enemy", (e: CustomEvent<number>) => {
-        cache.selected = e.detail;
+    window.addEventListener("click_enemy", (e: EnemyClickEvent) => {
+        cache.selected = e.detail.buttonIndex;
     });
 }
 
@@ -96,7 +96,7 @@ function InitClickEvents() {
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {
-    InitClickEvents();
+    ListenClickEvents();
     return LoadTypes();
 }
 

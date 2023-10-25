@@ -1,4 +1,4 @@
-import type { Panel } from "./game-ui";
+import type { Panel, GridClickEvent, ActionClickEvent } from "./game-ui";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,13 +79,25 @@ async function LoadTypes(): Promise<boolean> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Listen for button click event:
+ * Listen for Grid click event:
  * - Update cache.selected.
  */
-function InitClickEvents() {
+function ListenClickEvents() {
     const cache = GetBuildingCache();
-    window.addEventListener("click_grid", (e: CustomEvent<number>) => {
-        cache.selected = e.detail;
+    window.addEventListener("click_grid", (e: GridClickEvent) => {
+        cache.selected = e.detail.buttonIndex;
+    });
+}
+
+/**
+ * Listen for panel action event:
+ * - Spawn buildings.
+ */
+function ListenActionEvents() {
+    const cache = GetBuildingCache();
+    window.addEventListener("click_action", (e: ActionClickEvent) => {
+        for (const id of e.detail.action.build)
+            SpawnBuilding(cache.buildingTypes[id]);
     });
 }
 
@@ -94,7 +106,8 @@ function InitClickEvents() {
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {
-    InitClickEvents();
+    ListenClickEvents();
+    ListenActionEvents();
     return LoadTypes();
 }
 
