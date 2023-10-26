@@ -1,5 +1,7 @@
 import type { Panel, GridClickEvent, ActionClickEvent } from "./game-ui";
 
+import { GetEnemyCache } from "./game-enemy.js";
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,12 +82,15 @@ async function LoadTypes(): Promise<boolean> {
 
 /**
  * Listen for Grid click event:
- * - Update cache.selected.
+ * - Update selected building index.
+ * - Clear other selections (enemies, etc).
  */
 function ListenClickEvents() {
-    const cache = GetBuildingCache();
+    const buildingCache = GetBuildingCache();
+    const enemyCache = GetEnemyCache();
     window.addEventListener("click_grid", (e: GridClickEvent) => {
-        cache.selected = e.detail.buttonIndex;
+        buildingCache.selected = e.detail.buttonIndex;
+        enemyCache.selected = undefined;
     });
 }
 

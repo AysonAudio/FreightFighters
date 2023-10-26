@@ -3,6 +3,7 @@ import type { Enemy, EnemySpawnEvent } from "./game-enemy";
 import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
+import { GetEnemyCache } from "./game-enemy.js";
 import { GetPlayerCache } from "./game-player.js";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,8 +37,9 @@ export type GridClickEvent = CustomEvent<GridClick>;
 
 export type ActionClick = {
     buttonIndex: number;
-    building: Building;
-    action: Action;
+    building?: Building;
+    enemy?: Enemy;
+    action?: Action;
 };
 export type ActionClickEvent = CustomEvent<ActionClick>;
 
@@ -269,12 +271,13 @@ function UpdatePanel(obj: Building | Enemy | undefined) {
 
 /**
  * Set onclicks for all UI buttons.
- * Each button dispatches a CustomEvent onclick. Event.detail = button index.
+ * Each button dispatches a CustomEvent onclick.
  * Other libraries can listen to this event to modularly add button functionality.
  */
 function SetButtonEvents() {
     const cacheUI = GetCacheUI();
     const cacheBuilding = GetBuildingCache();
+    const cacheEnemy = GetEnemyCache();
     const cachePlayer = GetPlayerCache();
 
     // Building Grid //
@@ -291,11 +294,13 @@ function SetButtonEvents() {
         };
     }
 
-    // Panel //
+    // Panel Actions //
     for (let i = 0; i < cacheUI.panelButtons.length; i++) {
         cacheUI.panelButtons[i].onclick = () => {
             const building = cacheBuilding.buildings[cacheBuilding.selected];
-            const action = building.actions[i];
+            const enemy = cacheEnemy.enemies[cacheEnemy.selected];
+            const action = building?.actions[i] || enemy?.actions[i];
+            if (!action) return;
 
             // Dont send event if action requirements not met
             for (const key in action.min)
@@ -308,6 +313,7 @@ function SetButtonEvents() {
                     detail: {
                         buttonIndex: i,
                         building: building,
+                        enemy: enemy,
                         action: action,
                     },
                 })

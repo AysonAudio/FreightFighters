@@ -1,5 +1,7 @@
 import type { Panel, EnemyClickEvent } from "./game-ui";
 
+import { GetBuildingCache } from "./game-building.js";
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,12 +84,15 @@ async function LoadTypes(): Promise<boolean> {
 
 /**
  * Listen for button click event:
- * - Update cache.selected.
+ * - Update selected enemy index.
+ * - Clear other selections (buildings, etc).
  */
 function ListenClickEvents() {
-    const cache = GetEnemyCache();
+    const enemyCache = GetEnemyCache();
+    const buildingCache = GetBuildingCache();
     window.addEventListener("click_enemy", (e: EnemyClickEvent) => {
-        cache.selected = e.detail.buttonIndex;
+        enemyCache.selected = e.detail.buttonIndex;
+        buildingCache.selected = undefined;
     });
 }
 
