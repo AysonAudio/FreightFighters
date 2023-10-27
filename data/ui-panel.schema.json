@@ -82,6 +82,11 @@
                                     "type": "string"
                                 }
                             },
+                            "kill": {
+                                "description": "Action kills selected building/enemy.",
+                                "type": "boolean",
+                                "default": false
+                            },
                             "adjustRenew": {
                                 "description": "Action adjusts cap of how much resources get replenished every day, by a positive or negative amount.",
                                 "unevaluatedProperties": false,

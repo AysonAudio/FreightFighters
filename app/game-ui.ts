@@ -1,5 +1,5 @@
 import type { Building, BuildingSpawnEvent } from "./game-building";
-import type { Enemy, EnemySpawnEvent } from "./game-enemy";
+import type { Enemy, EnemyEvent } from "./game-enemy";
 import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
@@ -12,6 +12,7 @@ import { GetPlayerCache } from "./game-player.js";
 export type Action = {
     iconURI: string;
     build?: string[];
+    kill?: boolean;
     adjustCurr?: NumVars;
     adjustRenew?: PlayerNums;
     min?: NumVars;
@@ -270,7 +271,7 @@ function UpdatePanel(obj: Building | Enemy | undefined) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Set onclicks for all UI buttons.
+ * Set onclicks for all static UI buttons.
  * Each button dispatches a CustomEvent onclick.
  * Other libraries can listen to this event to modularly add button functionality.
  */
@@ -322,12 +323,38 @@ function SetButtonEvents() {
     }
 }
 
+/**
+ * Reset onclicks for all existing enemy card buttons.
+ * Dispatches a CustomEvent onclick.
+ * Other libraries can listen to this event to modularly add button functionality.
+ *
+ * Run this after splicing an enemy and enemy card to reset button indices.
+ */
+function ResetEnemyEvents() {
+    const cacheUI = GetCacheUI();
+    const cacheEnemy = GetEnemyCache();
+    const cards = cacheUI.fightBarDiv.children;
+
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i] as HTMLButtonElement;
+        card.onclick = () =>
+            window.dispatchEvent(
+                new CustomEvent<EnemyClick>("click_enemy", {
+                    detail: {
+                        buttonIndex: i,
+                        enemy: cacheEnemy.enemies[i],
+                    },
+                })
+            );
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Listen for Building and Enemy click events:
- * - Unhide and update Panel to show selected building's details.
+ * - Unhide and update Panel to show selection's details.
  * - Set Panel id to apply build-related-css.
  */
 function ListenButtonEvents() {
@@ -357,16 +384,17 @@ function ListenBuildingEvents() {
 
 /**
  * Listen for enemy spawn event:
- * - Clone a new enemy card into fight bar.
+ * - Clone a new enemy card elem into fight bar.
  * - Set card title, art, and numbers.
  * - Animate: Slide from right.
  * - Set onclick:
  *     - Dispatch a CustomEvent.
  *     - Other libraries can listen to this event to modularly add button functionality.
  */
-function ListenEnemyEvents() {
+function ListenEnemySpawnEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("spawn_enemy", (e: EnemySpawnEvent) => {
+
+    window.addEventListener("spawn_enemy", (e: EnemyEvent) => {
         let card: HTMLButtonElement;
         let cardTitle: HTMLHeadingElement;
         let cardArt: HTMLImageElement;
@@ -404,6 +432,25 @@ function ListenEnemyEvents() {
                     },
                 })
             );
+    });
+}
+
+/**
+ * Listen for enemy kill event:
+ * - Delete enemy card elem.
+ * - Update button indices in enemy card onclicks.
+ * - Clear and hide Panel.
+ */
+function ListenEnemyKillEvents() {
+    const cache = GetCacheUI();
+    window.addEventListener("kill_enemy", (e: EnemyEvent) => {
+        let card = cache.fightBarDiv.children[e.detail.index];
+        cache.fightBarDiv.removeChild(card);
+        card.remove();
+        ResetEnemyEvents();
+        UpdatePanel(undefined);
+        cache.panelDiv.style.display = "";
+        cache.panelDiv.id = "";
     });
 }
 
@@ -456,6 +503,7 @@ export function Init() {
     SetButtonEvents();
     ListenButtonEvents();
     ListenBuildingEvents();
-    ListenEnemyEvents();
+    ListenEnemySpawnEvents();
+    ListenEnemyKillEvents();
     ListenResourceEvents();
 }

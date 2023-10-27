@@ -1,4 +1,4 @@
-import type { Panel, EnemyClickEvent } from "./game-ui";
+import type { Panel, EnemyClickEvent, ActionClickEvent } from "./game-ui";
 
 import { GetBuildingCache } from "./game-building.js";
 
@@ -12,12 +12,12 @@ export type Enemy = Panel & {
     hitDamage: number;
 };
 
-export type EnemySpawn = {
+export type EnemyMsg = {
     enemy: Enemy;
     index: number;
 };
 
-export type EnemySpawnEvent = CustomEvent<EnemySpawn>;
+export type EnemyEvent = CustomEvent<EnemyMsg>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,11 +97,36 @@ function ListenClickEvents() {
 }
 
 /**
+ * Listen for panel action event:
+ * - Kill specified enemy.
+ * - Clear selected enemy index.
+ * - Dispatch a {@link EnemyEvent} named "kill_enemy".
+ */
+function ListenActionEvents() {
+    const cache = GetEnemyCache();
+    window.addEventListener("click_action", (e: ActionClickEvent) => {
+        if (e.detail.action?.kill) {
+            cache.enemies.splice(e.detail.buttonIndex, 1);
+            cache.selected = undefined;
+            window.dispatchEvent(
+                new CustomEvent<EnemyMsg>("kill_enemy", {
+                    detail: {
+                        enemy: e.detail.enemy,
+                        index: e.detail.buttonIndex,
+                    },
+                })
+            );
+        }
+    });
+}
+
+/**
  * Init all Enemy systems.
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {
     ListenClickEvents();
+    ListenActionEvents();
     return LoadTypes();
 }
 
@@ -110,13 +135,13 @@ export async function Init(): Promise<boolean> {
 
 /**
  * Spawn a new Enemy.
- * Dispatch a {@link EnemySpawnEvent} named "spawn_enemy".
+ * Dispatch a {@link EnemyEvent} named "spawn_enemy".
  */
 export function SpawnEnemy(type: Enemy) {
     const cache = GetEnemyCache();
     cache.enemies.push(type);
     window.dispatchEvent(
-        new CustomEvent<EnemySpawn>("spawn_enemy", {
+        new CustomEvent<EnemyMsg>("spawn_enemy", {
             detail: {
                 enemy: type,
                 index: cache.enemies.length - 1,

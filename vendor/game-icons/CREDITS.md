@@ -19,4 +19,12 @@
 
 ## Enemy Cards
 
+### Zombie
+
 -   [Shambling zombie](https://game-icons.net/1x1/delapouite/shambling-zombie.html) by Delapouite
+
+## Common
+
+### Combat
+
+-   [Sword clash](https://game-icons.net/1x1/lorc/sword-clash.html) by Lorc

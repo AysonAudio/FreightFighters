@@ -8,6 +8,18 @@
         "title": "Zombie",
         "desc": "A weak enemy.",
         "portraitURI": "../vendor/game-icons/shambling-zombie.svg",
-        "counterIDs": ["enemyhp1"]
+        "counterIDs": ["enemyhp1"],
+        "actions": [
+            {
+                "iconURI": "../vendor/game-icons/sword-clash.svg",
+                "kill": true,
+                "adjustCurr": {
+                    "troops": -1
+                },
+                "min": {
+                    "troops": 1
+                }
+            }
+        ]
     }
 }
