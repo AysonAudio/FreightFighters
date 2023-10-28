@@ -4,7 +4,7 @@
         "title": "Campfire",
         "desc": "A humble resting place.",
         "portraitURI": "../vendor/game-icons/campfire.svg",
-        "counterIDs": ["hp"],
+        "counterIDs": ["hp", "renewtroops2"],
         "actions": [
             {
                 "iconURI": "../vendor/game-icons/backward-time.svg",

@@ -18,7 +18,7 @@ interface CounterJSON {
 }
 
 /** All counters in /data/counter.json. */
-interface CounterData extends CounterJSON {
+interface CounterData {
     hp?: Counter;
 }
 
@@ -79,10 +79,10 @@ type PlayerCache = {
 export const GetPlayerCache: () => PlayerCache = (() => {
     const cache: PlayerCache = {
         current: {
-            days: 1,
+            days: 0,
             hp: 2,
             wood: 0,
-            troops: 0,
+            troops: 2,
         },
         min: {
             hp: 0,
@@ -97,7 +97,7 @@ export const GetPlayerCache: () => PlayerCache = (() => {
         renew: {
             hp: 0,
             wood: 0,
-            troops: 0,
+            troops: 2,
         },
 
         counters: {},
@@ -120,44 +120,6 @@ async function LoadCounters(): Promise<boolean> {
             cache.areCountersLoaded = true;
             return true;
         });
-}
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Listen for panel action events.
- * - Adjust number variables.
- * - If game day changes, add resources if current is less than renew
- */
-function ListenClickEvents() {
-    const cache = GetPlayerCache();
-    window.addEventListener("click_action", (e: ActionClickEvent) => {
-        const adjustRenew = e.detail.action.adjustRenew;
-        const adjustCurr = e.detail.action.adjustCurr;
-
-        for (const key in adjustRenew)
-            AdjustRenew(key as keyof PlayerNums, adjustRenew[key]);
-
-        for (const key in adjustCurr) {
-            AdjustNum(key as keyof NumVars, adjustCurr[key]);
-            if (key == "days")
-                for (const key2 in cache.renew)
-                    if (cache.current[key2] < cache.renew[key2]) {
-                        const change = cache.renew[key2] - cache.current[key2];
-                        AdjustNum(key2 as keyof NumVars, change);
-                    }
-        }
-    });
-}
-
-/**
- * Init all inventory systems.
- * Run this once at game start.
- */
-export async function Init(): Promise<boolean> {
-    ListenClickEvents();
-    return LoadCounters();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,3 +166,45 @@ export function AdjustRenew(key: keyof PlayerNums, amount: number) {
         })
     );
 }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Listen for panel action events.
+ * - Adjust number variables.
+ * - If game day changes, add resources if current is less than renew
+ */
+function ListenClickEvents() {
+    const cache = GetPlayerCache();
+    window.addEventListener("click_action", (e: ActionClickEvent) => {
+        const adjustRenew = e.detail.action.adjustRenew;
+        const adjustCurr = e.detail.action.adjustCurr;
+
+        for (const key in adjustRenew)
+            AdjustRenew(key as keyof PlayerNums, adjustRenew[key]);
+
+        for (const key in adjustCurr) {
+            AdjustNum(key as keyof NumVars, adjustCurr[key]);
+            if (key == "days")
+                for (const key2 in cache.renew)
+                    if (cache.current[key2] < cache.renew[key2]) {
+                        const change = cache.renew[key2] - cache.current[key2];
+                        AdjustNum(key2 as keyof NumVars, change);
+                    }
+        }
+    });
+}
+
+/**
+ * Init all inventory systems.
+ * Load JSON files.
+ * Run this once at game start.
+ */
+export async function Init(): Promise<boolean> {
+    ListenClickEvents();
+    return LoadCounters();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////

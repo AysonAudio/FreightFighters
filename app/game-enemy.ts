@@ -28,7 +28,7 @@ interface EnemyJSON {
 }
 
 /** All enemy types in /data/enemy.json. */
-interface EnemyData extends EnemyJSON {
+export interface EnemyData {
     zombie?: Enemy;
 }
 
@@ -122,6 +122,7 @@ function ListenActionEvents() {
 
 /**
  * Init all Enemy systems.
+ * Load JSON files.
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {
@@ -136,9 +137,11 @@ export async function Init(): Promise<boolean> {
 /**
  * Spawn a new Enemy.
  * Dispatch a {@link EnemyEvent} named "spawn_enemy".
+ * Does nothing if 4 enemies already exist.
  */
 export function SpawnEnemy(type: Enemy) {
     const cache = GetEnemyCache();
+    if (cache.enemies.length >= 4) return;
     cache.enemies.push(type);
     window.dispatchEvent(
         new CustomEvent<EnemyMsg>("spawn_enemy", {

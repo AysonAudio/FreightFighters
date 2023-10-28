@@ -25,7 +25,7 @@ interface BuildingJSON {
 }
 
 /** All building types in /data/building.json. */
-interface BuildingData extends BuildingJSON {
+interface BuildingData {
     campfire?: Building;
     tree?: Building;
 }
@@ -108,6 +108,7 @@ function ListenActionEvents() {
 
 /**
  * Init all Building systems.
+ * Load JSON files.
  * Run this once at game start.
  */
 export async function Init(): Promise<boolean> {

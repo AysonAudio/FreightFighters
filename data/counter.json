@@ -10,8 +10,13 @@
         "number": 1
     },
     "renewtroops1": {
-        "tooltip": "Renews 1 manpower every day.\n(if less than total renewal)",
+        "tooltip": "Replenishes 1 unused manpower every day.",
         "emblem": "🤺",
         "number": 1
+    },
+    "renewtroops2": {
+        "tooltip": "Replenishes 2 unused manpower every day.",
+        "emblem": "🤺",
+        "number": 2
     }
 }

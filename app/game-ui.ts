@@ -157,7 +157,7 @@ export const GetCacheUI: () => CacheUI = (() => {
  */
 export function ShowGameDay(day: number) {
     const cache = GetCacheUI();
-    cache.dayToastHeading.innerHTML = "Day " + day.toString();
+    cache.dayToastHeading.innerHTML = "Day " + (day + 1).toString();
     cache.dayToastDiv.animate(
         [
             { opacity: "0" },
