@@ -176,15 +176,18 @@ function ListenClickEvents() {
 
 /**
  * Listen for panel action event:
- * - Kill specified enemy.
- * - Dispatch a {@link EnemyEvent} named "kill_enemy".
- * - Clear selected enemy index.
+ * - If action is to kill selected enemy:
+ *     - Splice enemy and RecentSpawn flag.
+ *     - Clear selected enemy index.
+ *     - Dispatch a {@link EnemyEvent} named "kill_enemy".
+ *
  */
 function ListenActionEvents() {
     const cache = GetEnemyCache();
     window.addEventListener("click_action", (e: ActionClickEvent) => {
         if (e.detail.action?.kill) {
             cache.enemies.splice(e.detail.buttonIndex, 1);
+            cache.recentSpawns.splice(e.detail.buttonIndex, 1);
             window.dispatchEvent(
                 new CustomEvent<EnemyMsg>("kill_enemy", {
                     detail: {
