@@ -20,6 +20,10 @@ window.addEventListener("play", (e) => {
     });
 
     LibEnemy.Init().then(() => {
+        // Note: Game Day 0 is a grace period.
+        // No enemies will attack on day end,
+        // because the RecentSpawn flags of Level 0's enemies aren't cleared,
+        // because AdjustNum() isnt called.
         LibLevel.SpawnLevel(0);
     });
 

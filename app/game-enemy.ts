@@ -49,6 +49,12 @@ type EnemyCache = {
     enemyTypes: EnemyData;
     /** True if enemyTypes are loaded. */
     areTypesLoaded: boolean;
+
+    /**
+     * Key = index of an enemy that was just spawned.
+     * These enemies dont attack on the same day they were spawned.
+     */
+    recentSpawns: (true | undefined)[];
 };
 
 /**
@@ -63,6 +69,8 @@ export const GetEnemyCache: () => EnemyCache = (() => {
 
         enemyTypes: {},
         areTypesLoaded: false,
+
+        recentSpawns: [],
     };
     return () => cache;
 })();
@@ -87,6 +95,7 @@ async function LoadTypes(): Promise<boolean> {
 
 /**
  * Spawn new enemies.
+ * Flag them as recently spawned so they dont attack for one game day.
  * Dispatch a {@link SpawnEnemiesEvent} named "spawn_enemies".
  * Max 4 enemies alive at once.
  */
@@ -96,10 +105,13 @@ export function SpawnEnemy(type: Enemy, amount: number = 1) {
 
     for (let i = 0; i < amount; i++) {
         if (cache.enemies.length >= 4) break;
+        const newEnemyIndex = cache.enemies.length;
+
         cache.enemies.push(type);
+        cache.recentSpawns[newEnemyIndex] = true;
         msgs.push({
             enemy: type,
-            index: cache.enemies.length - 1,
+            index: newEnemyIndex,
         });
     }
     if (msgs.length <= 0) return;
@@ -119,6 +131,12 @@ export function RollEnemyAttack(enemyIndex: number) {
     const enemy = cacheEnemy.enemies[enemyIndex];
     const card = cacheUI.fightBarDiv.children[enemyIndex];
     const roll = Math.random() * 100;
+
+    // Skip enemies that were just spawned on this game day
+    if (cacheEnemy.recentSpawns[enemyIndex]) {
+        cacheEnemy.recentSpawns[enemyIndex] = undefined;
+        return;
+    }
 
     if (roll < enemy.hitChance) {
         AdjustNum("hp", -enemy.hitDamage);
