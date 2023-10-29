@@ -438,7 +438,8 @@ function ListenEnemySpawnEvents() {
 
         for (let j = 0; j < lastExistingElemIndex; j++) {
             const _card = cache.fightBarDiv.children[j];
-            _card.animate([{ translate: "10vw" }, { translate: "0" }], animOpt);
+            const length = "" + 10 * e.detail.length + "vw";
+            _card.animate([{ translate: length }, { translate: "0" }], animOpt);
         }
     });
 }
