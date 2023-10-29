@@ -395,6 +395,12 @@ function ListenBuildingEvents() {
  */
 function ListenEnemySpawnEvents() {
     const cache = GetCacheUI();
+    const animOpt = {
+        easing: "cubic-bezier(0, 1, 0.4, 1)",
+        duration: 1000,
+        iterations: 1,
+    };
+
     window.addEventListener("spawn_enemies", (e: SpawnEnemiesEvent) => {
         const lastExistingElemIndex = cache.fightBarDiv.childElementCount;
 
@@ -417,17 +423,7 @@ function ListenEnemySpawnEvents() {
             counters[0].innerHTML = "🎲" + e.detail[i].enemy.hitChance + "%";
             counters[1].innerHTML = "" + e.detail[i].enemy.hitDamage + "☠️";
 
-            card.animate(
-                [
-                    { transform: "translateX(100vw)" },
-                    { transform: "translateX(0)" },
-                ],
-                {
-                    easing: "cubic-bezier(0, 1, 0.4, 1)",
-                    duration: 1000,
-                    iterations: 1,
-                }
-            );
+            card.animate([{ translate: "100vw" }, { translate: "0" }], animOpt);
 
             card.onclick = () =>
                 window.dispatchEvent(
@@ -442,17 +438,7 @@ function ListenEnemySpawnEvents() {
 
         for (let j = 0; j < lastExistingElemIndex; j++) {
             const _card = cache.fightBarDiv.children[j];
-            _card.animate(
-                [
-                    { transform: "translateX(10vw)" },
-                    { transform: "translateX(0)" },
-                ],
-                {
-                    easing: "cubic-bezier(0, 1, 0.4, 1)",
-                    duration: 1000,
-                    iterations: 1,
-                }
-            );
+            _card.animate([{ translate: "10vw" }, { translate: "0" }], animOpt);
         }
     });
 }
@@ -466,9 +452,13 @@ function ListenEnemySpawnEvents() {
  */
 function ListenEnemyKillEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("kill_enemy", (e: EnemyEvent) => {
-        console.log(e.detail.index);
+    const animOpt = {
+        easing: "cubic-bezier(0, 1, 0.4, 1)",
+        duration: 1000,
+        iterations: 1,
+    };
 
+    window.addEventListener("kill_enemy", (e: EnemyEvent) => {
         let cardCount: number;
         let killedCard = cache.fightBarDiv.children[e.detail.index];
 
@@ -478,31 +468,11 @@ function ListenEnemyKillEvents() {
 
         for (let i = 0; i < e.detail.index; i++) {
             const card = cache.fightBarDiv.children[i];
-            card.animate(
-                [
-                    { transform: "translateX(-10vw)" },
-                    { transform: "translateX(0)" },
-                ],
-                {
-                    easing: "cubic-bezier(0, 1, 0.4, 1)",
-                    duration: 1000,
-                    iterations: 1,
-                }
-            );
+            card.animate([{ translate: "-10vw" }, { translate: "0" }], animOpt);
         }
         for (let j = e.detail.index; j < cardCount; j++) {
             const card = cache.fightBarDiv.children[j];
-            card.animate(
-                [
-                    { transform: "translateX(10vw)" },
-                    { transform: "translateX(0)" },
-                ],
-                {
-                    easing: "cubic-bezier(0, 1, 0.4, 1)",
-                    duration: 1000,
-                    iterations: 1,
-                }
-            );
+            card.animate([{ translate: "10vw" }, { translate: "0" }], animOpt);
         }
 
         ResetEnemyEvents();

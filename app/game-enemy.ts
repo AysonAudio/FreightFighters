@@ -124,6 +124,8 @@ export function RollEnemyAttack(enemyIndex: number) {
         AdjustNum("hp", -enemy.hitDamage);
         card.animate(
             [
+                // Use transform instead of translate,
+                // to allow other simultaneous anims
                 { transform: "translateY(0)" },
                 { transform: "translateY(-10vh)" },
                 { transform: "translateY(0)" },
@@ -181,6 +183,7 @@ function ListenActionEvents() {
 /**
  * Listen for player variable change events:
  * - If game day changes, make all enemies roll for attack.
+ * - Newly spawned enemies dont attack the day they're spawned.
  */
 function ListenResourceEvents() {
     const cache = GetEnemyCache();
