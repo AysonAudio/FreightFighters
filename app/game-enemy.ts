@@ -1,6 +1,9 @@
 import type { Panel, EnemyClickEvent, ActionClickEvent } from "./game-ui";
+import type { NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
+import { AdjustNum } from "./game-player.js";
+import { GetCacheUI } from "./game-ui.js";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,8 +19,8 @@ export type EnemyMsg = {
     enemy: Enemy;
     index: number;
 };
-
 export type EnemyEvent = CustomEvent<EnemyMsg>;
+export type SpawnEnemiesEvent = CustomEvent<EnemyMsg[]>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,6 +86,61 @@ async function LoadTypes(): Promise<boolean> {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Spawn new enemies.
+ * Dispatch a {@link SpawnEnemiesEvent} named "spawn_enemies".
+ * Max 4 enemies alive at once.
+ */
+export function SpawnEnemy(type: Enemy, amount: number = 1) {
+    const cache = GetEnemyCache();
+    let msgs: EnemyMsg[] = [];
+
+    for (let i = 0; i < amount; i++) {
+        if (cache.enemies.length >= 4) break;
+        cache.enemies.push(type);
+        msgs.push({
+            enemy: type,
+            index: cache.enemies.length - 1,
+        });
+    }
+    if (msgs.length <= 0) return;
+
+    window.dispatchEvent(
+        new CustomEvent<EnemyMsg[]>("spawn_enemies", { detail: msgs })
+    );
+}
+
+/**
+ * Make an enemy roll for hitChance once.
+ * If successful, do hitDamage and play attack anim.
+ */
+export function RollEnemyAttack(enemyIndex: number) {
+    const cacheEnemy = GetEnemyCache();
+    const cacheUI = GetCacheUI();
+    const enemy = cacheEnemy.enemies[enemyIndex];
+    const card = cacheUI.fightBarDiv.children[enemyIndex];
+    const roll = Math.random() * 100;
+
+    if (roll < enemy.hitChance) {
+        AdjustNum("hp", -enemy.hitDamage);
+        card.animate(
+            [
+                { transform: "translateY(0)" },
+                { transform: "translateY(-10vh)" },
+                { transform: "translateY(0)" },
+            ],
+            {
+                easing: "cubic-bezier(0, 0.8, 0.2, 1)",
+                duration: 500,
+                iterations: 1,
+            }
+        );
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Listen for button click event:
  * - Update selected enemy index.
  * - Clear other selections (buildings, etc).
@@ -121,6 +179,18 @@ function ListenActionEvents() {
 }
 
 /**
+ * Listen for player variable change events:
+ * - If game day changes, make all enemies roll for attack.
+ */
+function ListenResourceEvents() {
+    const cache = GetEnemyCache();
+    window.addEventListener("adjustCurr", (e: NumChangeEvent) => {
+        if (e.detail.key != "days") return;
+        for (let i = 0; i < cache.enemies.length; i++) RollEnemyAttack(i);
+    });
+}
+
+/**
  * Init all Enemy systems.
  * Load JSON files.
  * Run this once at game start.
@@ -128,27 +198,9 @@ function ListenActionEvents() {
 export async function Init(): Promise<boolean> {
     ListenClickEvents();
     ListenActionEvents();
+    ListenResourceEvents();
     return LoadTypes();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Spawn a new Enemy.
- * Dispatch a {@link EnemyEvent} named "spawn_enemy".
- * Does nothing if 4 enemies already exist.
- */
-export function SpawnEnemy(type: Enemy) {
-    const cache = GetEnemyCache();
-    if (cache.enemies.length >= 4) return;
-    cache.enemies.push(type);
-    window.dispatchEvent(
-        new CustomEvent<EnemyMsg>("spawn_enemy", {
-            detail: {
-                enemy: type,
-                index: cache.enemies.length - 1,
-            },
-        })
-    );
-}

@@ -79,7 +79,7 @@ export function SpawnLevel(level: Level | number) {
     for (const spawn of spawnGroup.spawns) {
         const enemyType = enemyCache.enemyTypes[spawn[0]];
         const amount = spawn[1];
-        for (let j = 0; j < amount; j++) SpawnEnemy(enemyType);
+        SpawnEnemy(enemyType, amount);
     }
 }
 
@@ -92,11 +92,10 @@ export function SpawnLevel(level: Level | number) {
  */
 function ListenResourceEvents() {
     window.addEventListener("adjustCurr", (e: NumChangeEvent) => {
-        if (e.detail.key == "days") {
-            const dayStart = e.detail.newTotal - e.detail.change + 1;
-            const dayEnd = e.detail.newTotal;
-            for (let day = dayStart; day <= dayEnd; day++) SpawnLevel(day);
-        }
+        if (e.detail.key != "days") return;
+        const dayStart = e.detail.newTotal - e.detail.change + 1;
+        const dayEnd = e.detail.newTotal;
+        for (let day = dayStart; day <= dayEnd; day++) SpawnLevel(day);
     });
 }
 

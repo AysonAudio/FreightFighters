@@ -11,9 +11,6 @@
                 "adjustCurr": {
                     "days": 1,
                     "hp": 1
-                },
-                "max": {
-                    "hp": 4
                 }
             }
         ]

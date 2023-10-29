@@ -1,5 +1,5 @@
 import type { Building, BuildingSpawnEvent } from "./game-building";
-import type { Enemy, EnemyEvent } from "./game-enemy";
+import type { Enemy, EnemyEvent, SpawnEnemiesEvent } from "./game-enemy";
 import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
@@ -383,55 +383,77 @@ function ListenBuildingEvents() {
 }
 
 /**
- * Listen for enemy spawn event:
- * - Clone a new enemy card elem into fight bar.
- * - Set card title, art, and numbers.
- * - Animate: Slide from right.
+ * Listen for enemies spawn event:
+ * - Clone new enemy card elems into fight bar.
+ * - Set cards' titles, arts, and numbers.
+ * - Animate:
+ *     - Slide new cards from off-screen to the left.
+ *     - Slide existing cards slightly to the left.
  * - Set onclick:
  *     - Dispatch a CustomEvent.
  *     - Other libraries can listen to this event to modularly add button functionality.
  */
 function ListenEnemySpawnEvents() {
     const cache = GetCacheUI();
+    window.addEventListener("spawn_enemies", (e: SpawnEnemiesEvent) => {
+        const lastExistingElemIndex = cache.fightBarDiv.childElementCount;
 
-    window.addEventListener("spawn_enemy", (e: EnemyEvent) => {
-        let card: HTMLButtonElement;
-        let cardTitle: HTMLHeadingElement;
-        let cardArt: HTMLImageElement;
-        let cardCounters: NodeListOf<HTMLSpanElement>;
+        for (let i = 0; i < e.detail.length; i++) {
+            let card: HTMLButtonElement;
+            let title: HTMLHeadingElement;
+            let art: HTMLImageElement;
+            let counters: NodeListOf<HTMLSpanElement>;
 
-        cache.fightBarDiv.append(cache.enemyTemplate.content.cloneNode(true));
-        card = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
-        cardTitle = card.querySelector(".title");
-        cardArt = card.querySelector(".bg-art > img");
-        cardCounters = card.querySelectorAll(".counters > *");
-
-        cardTitle.innerHTML = e.detail.enemy.name;
-        cardArt.src = e.detail.enemy.artURI;
-        cardCounters[0].innerHTML = "🎲" + e.detail.enemy.hitChance + "%";
-        cardCounters[1].innerHTML = "" + e.detail.enemy.hitDamage + "☠️";
-
-        card.animate(
-            [
-                { transform: "translateX(100vw)" },
-                { transform: "translateX(0)" },
-            ],
-            {
-                easing: "cubic-bezier(0, 1, 0.4, 1)",
-                duration: 1000,
-                iterations: 1,
-            }
-        );
-
-        card.onclick = () =>
-            window.dispatchEvent(
-                new CustomEvent<EnemyClick>("click_enemy", {
-                    detail: {
-                        buttonIndex: e.detail.index,
-                        enemy: e.detail.enemy,
-                    },
-                })
+            cache.fightBarDiv.append(
+                cache.enemyTemplate.content.cloneNode(true)
             );
+            card = cache.fightBarDiv.lastElementChild as HTMLButtonElement;
+            title = card.querySelector(".title");
+            art = card.querySelector(".bg-art > img");
+            counters = card.querySelectorAll(".counters > *");
+
+            title.innerHTML = e.detail[i].enemy.name;
+            art.src = e.detail[i].enemy.artURI;
+            counters[0].innerHTML = "🎲" + e.detail[i].enemy.hitChance + "%";
+            counters[1].innerHTML = "" + e.detail[i].enemy.hitDamage + "☠️";
+
+            card.animate(
+                [
+                    { transform: "translateX(100vw)" },
+                    { transform: "translateX(0)" },
+                ],
+                {
+                    easing: "cubic-bezier(0, 1, 0.4, 1)",
+                    duration: 1000,
+                    iterations: 1,
+                }
+            );
+
+            card.onclick = () =>
+                window.dispatchEvent(
+                    new CustomEvent<EnemyClick>("click_enemy", {
+                        detail: {
+                            buttonIndex: e.detail[i].index,
+                            enemy: e.detail[i].enemy,
+                        },
+                    })
+                );
+        }
+
+        for (let j = 0; j < lastExistingElemIndex; j++) {
+            const _card = cache.fightBarDiv.children[j];
+            _card.animate(
+                [
+                    { transform: "translateX(10vw)" },
+                    { transform: "translateX(0)" },
+                ],
+                {
+                    easing: "cubic-bezier(0, 1, 0.4, 1)",
+                    duration: 1000,
+                    iterations: 1,
+                }
+            );
+        }
     });
 }
 
