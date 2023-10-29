@@ -260,7 +260,7 @@ function UpdatePanelCounters(obj: Building | Enemy | undefined) {
 
 // ------------------------ //
 
-function UpdatePanel(obj: Building | Enemy | undefined) {
+function UpdatePanel(obj?: Building | Enemy | undefined) {
     UpdatePanelText(obj);
     UpdatePanelPortrait(obj);
     UpdatePanelButtons(obj);
@@ -460,17 +460,53 @@ function ListenEnemySpawnEvents() {
 /**
  * Listen for enemy kill event:
  * - Delete enemy card elem.
+ * - Animate: slide remaining cards to new positions.
  * - Update button indices in enemy card onclicks.
  * - Clear and hide Panel.
  */
 function ListenEnemyKillEvents() {
     const cache = GetCacheUI();
     window.addEventListener("kill_enemy", (e: EnemyEvent) => {
-        let card = cache.fightBarDiv.children[e.detail.index];
-        cache.fightBarDiv.removeChild(card);
-        card.remove();
+        console.log(e.detail.index);
+
+        let cardCount: number;
+        let killedCard = cache.fightBarDiv.children[e.detail.index];
+
+        cache.fightBarDiv.removeChild(killedCard);
+        killedCard.remove();
+        cardCount = cache.fightBarDiv.childElementCount;
+
+        for (let i = 0; i < e.detail.index; i++) {
+            const card = cache.fightBarDiv.children[i];
+            card.animate(
+                [
+                    { transform: "translateX(-10vw)" },
+                    { transform: "translateX(0)" },
+                ],
+                {
+                    easing: "cubic-bezier(0, 1, 0.4, 1)",
+                    duration: 1000,
+                    iterations: 1,
+                }
+            );
+        }
+        for (let j = e.detail.index; j < cardCount; j++) {
+            const card = cache.fightBarDiv.children[j];
+            card.animate(
+                [
+                    { transform: "translateX(10vw)" },
+                    { transform: "translateX(0)" },
+                ],
+                {
+                    easing: "cubic-bezier(0, 1, 0.4, 1)",
+                    duration: 1000,
+                    iterations: 1,
+                }
+            );
+        }
+
         ResetEnemyEvents();
-        UpdatePanel(undefined);
+        UpdatePanel();
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "";
     });

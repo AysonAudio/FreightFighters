@@ -157,23 +157,23 @@ function ListenClickEvents() {
 /**
  * Listen for panel action event:
  * - Kill specified enemy.
- * - Clear selected enemy index.
  * - Dispatch a {@link EnemyEvent} named "kill_enemy".
+ * - Clear selected enemy index.
  */
 function ListenActionEvents() {
     const cache = GetEnemyCache();
     window.addEventListener("click_action", (e: ActionClickEvent) => {
         if (e.detail.action?.kill) {
             cache.enemies.splice(e.detail.buttonIndex, 1);
-            cache.selected = undefined;
             window.dispatchEvent(
                 new CustomEvent<EnemyMsg>("kill_enemy", {
                     detail: {
                         enemy: e.detail.enemy,
-                        index: e.detail.buttonIndex,
+                        index: cache.selected,
                     },
                 })
             );
+            cache.selected = undefined;
         }
     });
 }
