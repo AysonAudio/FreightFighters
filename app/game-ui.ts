@@ -1,4 +1,4 @@
-import type { Building, BuildingEvent } from "./game-building";
+import type { Building, BuildingMsg, BuildingEvent } from "./game-building";
 import type {
     Enemy,
     EnemyMsg,
@@ -34,12 +34,6 @@ export type Panel = {
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-
-export type GridMsg = {
-    buttonIndex: number;
-    building: Building;
-};
-export type GridEvent = CustomEvent<GridMsg>;
 
 export type ActionClick = {
     buttonIndex: number;
@@ -284,6 +278,72 @@ function UpdatePanel(obj?: Building | Enemy | undefined) {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Show a tooltip above a hovered element.
+ */
+function ShowTooltip(hovered: HTMLElement, title?: string, desc?: string) {
+    const cache = GetCacheUI();
+    const hoveredRect = hovered.getBoundingClientRect();
+    let buttonBottomVH: number;
+    let buttonTopVH: number;
+    let buttonLeftVW: number;
+
+    let tooltipRect: DOMRect;
+    let tooltipVW: number;
+    let tooltipVH: number;
+
+    const marginVW = 2;
+    const marginVH = 2;
+
+    const windowWidth = Math.max(
+        document.documentElement.clientWidth || 0,
+        window.innerWidth || 0
+    );
+    const windowHeight = Math.max(
+        document.documentElement.clientHeight || 0,
+        window.innerHeight || 0
+    );
+
+    cache.tooltipDiv.style.display = "";
+    cache.tooltipHeading.innerHTML = title || "";
+    cache.tooltipParagraph.innerHTML = desc || "";
+
+    tooltipRect = cache.tooltipDiv.getBoundingClientRect();
+    tooltipVW = (tooltipRect.width / windowWidth) * 100;
+    tooltipVH = (tooltipRect.height / windowHeight) * 100;
+
+    buttonBottomVH = (hoveredRect.bottom / windowHeight) * 100;
+    buttonTopVH = (hoveredRect.top / windowHeight) * 100;
+    buttonLeftVW = (hoveredRect.left / windowWidth) * 100;
+
+    // Move tooltip above or below hovered elem, based on screen space
+    if (tooltipVH < 100 - buttonBottomVH - marginVH * 2)
+        cache.tooltipDiv.style.top = "" + (buttonBottomVH + marginVH) + "vh";
+    else cache.tooltipDiv.style.bottom = "" + (buttonTopVH + marginVH) + "vh";
+
+    // Set horizontal position, based on screen space
+    if (tooltipVW < 100 - buttonLeftVW - marginVW * 2)
+        cache.tooltipDiv.style.left = "" + buttonLeftVW + "vw";
+    else cache.tooltipDiv.style.right = "" + (100 - marginVW) + "vw";
+}
+
+/**
+ * Hide and reset tooltip.
+ */
+function HideTooltip() {
+    const cache = GetCacheUI();
+    cache.tooltipDiv.style.display = "none";
+    cache.tooltipHeading.innerHTML = "";
+    cache.tooltipParagraph.innerHTML = "";
+    cache.tooltipDiv.style.top = "";
+    cache.tooltipDiv.style.bottom = "";
+    cache.tooltipDiv.style.left = "";
+    cache.tooltipDiv.style.right = "";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+/**
  * Set onclicks for all static UI buttons.
  * Each button dispatches a CustomEvent onclick.
  * Other libraries can listen to this event to modularly add button functionality.
@@ -298,9 +358,9 @@ function SetButtonEvents() {
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onclick = () =>
             window.dispatchEvent(
-                new CustomEvent<GridMsg>("click_grid", {
+                new CustomEvent<BuildingMsg>("click_grid", {
                     detail: {
-                        buttonIndex: i,
+                        index: i,
                         building: cacheBuilding.buildings[i],
                     },
                 })
@@ -346,9 +406,9 @@ function SetHoverEvents() {
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onmouseenter = () =>
             window.dispatchEvent(
-                new CustomEvent<GridMsg>("hover_grid", {
+                new CustomEvent<BuildingMsg>("hover_grid", {
                     detail: {
-                        buttonIndex: i,
+                        index: i,
                         building: cacheBuilding.buildings[i],
                     },
                 })
@@ -368,9 +428,9 @@ function SetUnhoverEvents() {
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onmouseleave = () =>
             window.dispatchEvent(
-                new CustomEvent<GridMsg>("unhover_grid", {
+                new CustomEvent<BuildingMsg>("unhover_grid", {
                     detail: {
-                        buttonIndex: i,
+                        index: i,
                         building: cacheBuilding.buildings[i],
                     },
                 })
@@ -411,7 +471,7 @@ function ResetEnemyEvents() {
  */
 function ListenButtonEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("click_grid", (e: GridEvent) => {
+    window.addEventListener("click_grid", (e: BuildingEvent) => {
         UpdatePanel(e.detail.building);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "build";
@@ -424,89 +484,39 @@ function ListenButtonEvents() {
 }
 
 /**
- * Listen for Building onmouseenter events:
+ * Listen for Building and Enemy onmouseenter events:
  * - Show tooltip.
  */
-function ListenBuildingHoverEvents() {
+function ListenHoverEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("hover_grid", (e: GridEvent) => {
-        const button = cache.gridButtons[e.detail.buttonIndex];
-        const buttonRect = button.getBoundingClientRect();
-        let buttonBottomVH: number;
-        let buttonTopVH: number;
-        let buttonLeftVW: number;
-
-        let tooltipRect: DOMRect;
-        let tooltipVW: number;
-        let tooltipVH: number;
-
-        const marginVW = 2;
-        const marginVH = 2;
-
-        const windowWidth = Math.max(
-            document.documentElement.clientWidth || 0,
-            window.innerWidth || 0
-        );
-        const windowHeight = Math.max(
-            document.documentElement.clientHeight || 0,
-            window.innerHeight || 0
-        );
-
-        if (!e.detail.building) {
-            cache.tooltipDiv.style.display = "none";
-            cache.tooltipHeading.innerHTML = "";
-            cache.tooltipParagraph.innerHTML = "";
-            return;
-        }
-
-        cache.tooltipDiv.style.display = "";
-        cache.tooltipHeading.innerHTML = e.detail.building.title || "";
-        cache.tooltipParagraph.innerHTML = e.detail.building.desc || "";
-
-        tooltipRect = cache.tooltipDiv.getBoundingClientRect();
-        tooltipVW = (tooltipRect.width / windowWidth) * 100;
-        tooltipVH = (tooltipRect.height / windowHeight) * 100;
-
-        buttonBottomVH = (buttonRect.bottom / windowHeight) * 100;
-        buttonTopVH = (buttonRect.top / windowHeight) * 100;
-        buttonLeftVW = (buttonRect.left / windowWidth) * 100;
-
-        // Reset tooltip position
-        cache.tooltipDiv.style.top = "";
-        cache.tooltipDiv.style.bottom = "";
-        cache.tooltipDiv.style.left = "";
-        cache.tooltipDiv.style.right = "";
-
-        // Move tooltip above or below button, based on screen space
-        if (tooltipVH < 100 - buttonBottomVH - marginVH * 2)
-            cache.tooltipDiv.style.top =
-                "" + (buttonBottomVH + marginVH) + "vh";
-        else
-            cache.tooltipDiv.style.bottom =
-                "" + (buttonTopVH + marginVH) + "vh";
-
-        // Set horizontal position, based on screen space
-        if (tooltipVW < 100 - buttonLeftVW - marginVW * 2)
-            cache.tooltipDiv.style.left = "" + buttonLeftVW + "vw";
-        else cache.tooltipDiv.style.right = "" + (100 - marginVW) + "vw";
+    window.addEventListener("hover_grid", (e: BuildingEvent) => {
+        if (!e.detail.building) return;
+        const elem = cache.gridButtons[e.detail.index];
+        const title = e.detail.building.title;
+        const desc = e.detail.building.desc;
+        ShowTooltip(elem, title, desc);
+    });
+    window.addEventListener("hover_enemy", (e: EnemyEvent) => {
+        if (!e.detail.enemy) return;
+        const elem = cache.fightBarDiv.children[e.detail.index] as HTMLElement;
+        const title = e.detail.enemy.title;
+        const desc = e.detail.enemy.desc;
+        ShowTooltip(elem, title, desc);
     });
 }
 
 /**
- * Listen for UI onmouseleave events:
+ * Listen for Building and Enemy onmouseleave events:
  * - Hide tooltip.
  */
 function ListenUnhoverEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("unhover_grid", (e: GridEvent) => {
-        cache.tooltipDiv.style.display = "none";
-        cache.tooltipHeading.innerHTML = "";
-        cache.tooltipParagraph.innerHTML = "";
-    });
+    window.addEventListener("unhover_grid", () => HideTooltip());
+    window.addEventListener("unhover_enemy", () => HideTooltip());
 }
 
 /**
- * Listen for building spawn event:
+ * Listen for Building spawn event:
  * - Set Grid button icon.
  */
 function ListenBuildingEvents() {
@@ -523,12 +533,10 @@ function ListenBuildingEvents() {
  * - Animate:
  *     - Slide new cards from off-screen to the left.
  *     - Slide existing cards slightly to the left.
- * - Set onclick:
- *     - Dispatch a CustomEvent.
- *     - Other libraries can listen to this event to modularly add button functionality.
- * - Set onmouseenter:
- *     - Dispatch a CustomEvent.
- *     - Other libraries can listen to this event to modularly add button functionality.
+ * - Set onclick: Dispatch a CustomEvent named "click_enemy".
+ * - Set onmouseenter: Dispatch a CustomEvent named "hover_enemy".
+ * - Set onmouseleave: Dispatch a CustomEvent named "unhover_enemy".
+ * - Other libraries can listen to these events to modularly add functionality.
  */
 function ListenEnemySpawnEvents() {
     const cache = GetCacheUI();
@@ -571,6 +579,26 @@ function ListenEnemySpawnEvents() {
                         },
                     })
                 );
+
+            card.onmouseenter = () =>
+                window.dispatchEvent(
+                    new CustomEvent<EnemyMsg>("hover_enemy", {
+                        detail: {
+                            index: e.detail[i].index,
+                            enemy: e.detail[i].enemy,
+                        },
+                    })
+                );
+
+            card.onmouseleave = () =>
+                window.dispatchEvent(
+                    new CustomEvent<EnemyMsg>("unhover_enemy", {
+                        detail: {
+                            index: e.detail[i].index,
+                            enemy: e.detail[i].enemy,
+                        },
+                    })
+                );
         }
 
         for (let j = 0; j < lastExistingElemIndex; j++) {
@@ -582,8 +610,8 @@ function ListenEnemySpawnEvents() {
 }
 
 /**
- * Listen for enemy kill event:
- * - Delete enemy card elem.
+ * Listen for Enemy kill event:
+ * - Delete Enemy card elem.
  * - Animate: slide remaining cards to new positions.
  * - Update button indices in enemy card onclicks.
  * - Clear and hide Panel.
@@ -670,7 +698,7 @@ export function Init() {
     SetHoverEvents();
     SetUnhoverEvents();
     ListenButtonEvents();
-    ListenBuildingHoverEvents();
+    ListenHoverEvents();
     ListenUnhoverEvents();
     ListenBuildingEvents();
     ListenEnemySpawnEvents();

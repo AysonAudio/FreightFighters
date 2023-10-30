@@ -1,4 +1,4 @@
-import type { Panel, GridEvent, ActionClickEvent } from "./game-ui";
+import type { Panel, ActionClickEvent } from "./game-ui";
 
 import { GetEnemyCache } from "./game-enemy.js";
 
@@ -88,8 +88,8 @@ async function LoadTypes(): Promise<boolean> {
 function ListenClickEvents() {
     const buildingCache = GetBuildingCache();
     const enemyCache = GetEnemyCache();
-    window.addEventListener("click_grid", (e: GridEvent) => {
-        buildingCache.selected = e.detail.buttonIndex;
+    window.addEventListener("click_grid", (e: BuildingEvent) => {
+        buildingCache.selected = e.detail.index;
         enemyCache.selected = undefined;
     });
 }
