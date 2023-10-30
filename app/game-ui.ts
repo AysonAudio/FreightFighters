@@ -30,11 +30,11 @@ export type Panel = {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-export type GridClick = {
+export type GridMsg = {
     buttonIndex: number;
     building: Building;
 };
-export type GridClickEvent = CustomEvent<GridClick>;
+export type GridEvent = CustomEvent<GridMsg>;
 
 export type ActionClick = {
     buttonIndex: number;
@@ -105,6 +105,16 @@ type CacheUI = {
     dayToastDiv: HTMLDivElement;
     /** Toast title. */
     dayToastHeading: HTMLHeadingElement;
+
+    /**
+     * Global tooltip.
+     * Unhides and moves to cursor when hovering over a UI element.
+     */
+    tooltipDiv: HTMLDivElement;
+    /** Tooltip title. */
+    tooltipHeading: HTMLHeadingElement;
+    /** Tooltip desc. */
+    tooltipParagraph: HTMLParagraphElement;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,6 +154,10 @@ export const GetCacheUI: () => CacheUI = (() => {
 
         dayToastDiv: document.body.querySelector("#day"),
         dayToastHeading: document.body.querySelector("#day > h1"),
+
+        tooltipDiv: document.body.querySelector(".tooltip"),
+        tooltipHeading: document.body.querySelector(".tooltip > .title"),
+        tooltipParagraph: document.body.querySelector(".tooltip > .desc"),
     };
 
     return () => cache;
@@ -285,7 +299,7 @@ function SetButtonEvents() {
     for (let i = 0; i < cacheUI.gridButtons.length; i++) {
         cacheUI.gridButtons[i].onclick = () => {
             window.dispatchEvent(
-                new CustomEvent<GridClick>("click_grid", {
+                new CustomEvent<GridMsg>("click_grid", {
                     detail: {
                         buttonIndex: i,
                         building: cacheBuilding.buildings[i],
@@ -316,6 +330,54 @@ function SetButtonEvents() {
                         building: building,
                         enemy: enemy,
                         action: action,
+                    },
+                })
+            );
+        };
+    }
+}
+
+/**
+ * Set onmouseenter for all static UI elements.
+ * Each element dispatches a CustomEvent onmouseenter.
+ * Other libraries can listen to this event to modularly add functionality.
+ */
+function SetHoverEvents() {
+    const cacheUI = GetCacheUI();
+    const cacheBuilding = GetBuildingCache();
+
+    // Building Grid //
+    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
+        cacheUI.gridButtons[i].onmouseenter = () => {
+            window.dispatchEvent(
+                new CustomEvent<GridMsg>("hover_grid", {
+                    detail: {
+                        buttonIndex: i,
+                        building: cacheBuilding.buildings[i],
+                    },
+                })
+            );
+        };
+    }
+}
+
+/**
+ * Set onmouseleave for all static UI elements.
+ * Each element dispatches a CustomEvent onmouseleave.
+ * Other libraries can listen to this event to modularly add functionality.
+ */
+function SetUnhoverEvents() {
+    const cacheUI = GetCacheUI();
+    const cacheBuilding = GetBuildingCache();
+
+    // Building Grid //
+    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
+        cacheUI.gridButtons[i].onmouseleave = () => {
+            window.dispatchEvent(
+                new CustomEvent<GridMsg>("unhover_grid", {
+                    detail: {
+                        buttonIndex: i,
+                        building: cacheBuilding.buildings[i],
                     },
                 })
             );
@@ -359,7 +421,7 @@ function ResetEnemyEvents() {
  */
 function ListenButtonEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("click_grid", (e: GridClickEvent) => {
+    window.addEventListener("click_grid", (e: GridEvent) => {
         UpdatePanel(e.detail.building);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "build";
@@ -368,6 +430,88 @@ function ListenButtonEvents() {
         UpdatePanel(e.detail.enemy);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "combat";
+    });
+}
+
+/**
+ * Listen for Building onmouseenter events:
+ * - Show tooltip.
+ */
+function ListenHoverEvents() {
+    const cache = GetCacheUI();
+    window.addEventListener("hover_grid", (e: GridEvent) => {
+        const button = cache.gridButtons[e.detail.buttonIndex];
+        const buttonRect = button.getBoundingClientRect();
+        let buttonBottomVH: number;
+        let buttonTopVH: number;
+        let buttonLeftVW: number;
+
+        let tooltipRect: DOMRect;
+        let tooltipVW: number;
+        let tooltipVH: number;
+
+        const marginVW = 2;
+        const marginVH = 2;
+
+        const windowWidth = Math.max(
+            document.documentElement.clientWidth || 0,
+            window.innerWidth || 0
+        );
+        const windowHeight = Math.max(
+            document.documentElement.clientHeight || 0,
+            window.innerHeight || 0
+        );
+
+        if (!e.detail.building) {
+            cache.tooltipDiv.style.display = "none";
+            cache.tooltipHeading.innerHTML = "";
+            cache.tooltipParagraph.innerHTML = "";
+            return;
+        }
+
+        cache.tooltipDiv.style.display = "";
+        cache.tooltipHeading.innerHTML = e.detail.building.title || "";
+        cache.tooltipParagraph.innerHTML = e.detail.building.desc || "";
+
+        tooltipRect = cache.tooltipDiv.getBoundingClientRect();
+        tooltipVW = (tooltipRect.width / windowWidth) * 100;
+        tooltipVH = (tooltipRect.height / windowHeight) * 100;
+
+        buttonBottomVH = (buttonRect.bottom / windowHeight) * 100;
+        buttonTopVH = (buttonRect.top / windowHeight) * 100;
+        buttonLeftVW = (buttonRect.left / windowWidth) * 100;
+
+        // Reset tooltip position
+        cache.tooltipDiv.style.top = "";
+        cache.tooltipDiv.style.bottom = "";
+        cache.tooltipDiv.style.left = "";
+        cache.tooltipDiv.style.right = "";
+
+        // Move tooltip above or below button, based on screen space
+        if (tooltipVH < 100 - buttonBottomVH - marginVH * 2)
+            cache.tooltipDiv.style.top =
+                "" + (buttonBottomVH + marginVH) + "vh";
+        else
+            cache.tooltipDiv.style.bottom =
+                "" + (buttonTopVH + marginVH) + "vh";
+
+        // Set horizontal position, based on screen space
+        if (tooltipVW < 100 - buttonLeftVW - marginVW * 2)
+            cache.tooltipDiv.style.left = "" + buttonLeftVW + "vw";
+        else cache.tooltipDiv.style.right = "" + (100 - marginVW) + "vw";
+    });
+}
+
+/**
+ * Listen for Building onmouseleave events:
+ * - Hide tooltip.
+ */
+function ListenUnhoverEvents() {
+    const cache = GetCacheUI();
+    window.addEventListener("unhover_grid", (e: GridEvent) => {
+        cache.tooltipDiv.style.display = "none";
+        cache.tooltipHeading.innerHTML = "";
+        cache.tooltipParagraph.innerHTML = "";
     });
 }
 
@@ -530,7 +674,11 @@ function ListenResourceEvents() {
  */
 export function Init() {
     SetButtonEvents();
+    SetHoverEvents();
+    SetUnhoverEvents();
     ListenButtonEvents();
+    ListenHoverEvents();
+    ListenUnhoverEvents();
     ListenBuildingEvents();
     ListenEnemySpawnEvents();
     ListenEnemyKillEvents();

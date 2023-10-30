@@ -1,4 +1,4 @@
-import type { Panel, GridClickEvent, ActionClickEvent } from "./game-ui";
+import type { Panel, GridEvent, ActionClickEvent } from "./game-ui";
 
 import { GetEnemyCache } from "./game-enemy.js";
 
@@ -28,6 +28,7 @@ interface BuildingJSON {
 interface BuildingData {
     campfire?: Building;
     tree?: Building;
+    crafter?: Building;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ async function LoadTypes(): Promise<boolean> {
 function ListenClickEvents() {
     const buildingCache = GetBuildingCache();
     const enemyCache = GetEnemyCache();
-    window.addEventListener("click_grid", (e: GridClickEvent) => {
+    window.addEventListener("click_grid", (e: GridEvent) => {
         buildingCache.selected = e.detail.buttonIndex;
         enemyCache.selected = undefined;
     });

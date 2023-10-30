@@ -34,6 +34,25 @@
                 }
             },
             {
+                "iconURI": "../vendor/game-icons/hiking.svg",
+                "adjustCurr": {
+                    "wood": 1,
+                    "troops": -1
+                },
+                "min": {
+                    "troops": 1
+                }
+            }
+        ]
+    },
+
+    "crafter": {
+        "iconURI": "../vendor/game-icons/hammer-break.svg",
+        "title": "Crafting Table",
+        "desc": "A primitive construction site.",
+        "portraitURI": "../vendor/game-icons/hammer-break.svg",
+        "actions": [
+            {
                 "iconURI": "../vendor/game-icons/hut.svg",
                 "build": ["hut"],
                 "adjustRenew": {

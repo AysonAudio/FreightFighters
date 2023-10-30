@@ -17,6 +17,7 @@ window.addEventListener("play", (e) => {
         const buildingCache = LibBuilding.GetBuildingCache();
         LibBuilding.SpawnBuilding(buildingCache.buildingTypes.campfire);
         LibBuilding.SpawnBuilding(buildingCache.buildingTypes.tree);
+        LibBuilding.SpawnBuilding(buildingCache.buildingTypes.crafter);
     });
 
     LibEnemy.Init().then(() => {

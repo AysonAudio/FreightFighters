@@ -13,6 +13,11 @@
 -   [Beech](https://game-icons.net/1x1/lorc/beech.html) by Lorc
 -   [Punch](https://game-icons.net/1x1/lorc/punch.html) by Lorc
 
+### Crafting Table
+
+-   [Hammer break](https://game-icons.net/1x1/delapouite/hammer-break.html) by Delapouite
+-   [Hiking](https://game-icons.net/1x1/delapouite/hiking.html) by Delapouite
+
 ### Hikiko Hut
 
 -   [Hut](https://game-icons.net/1x1/delapouite/hut.html) by Delapouite
