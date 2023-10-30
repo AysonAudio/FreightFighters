@@ -1,4 +1,4 @@
-import type { Panel, EnemyClickEvent, ActionClickEvent } from "./game-ui";
+import type { Panel, ActionClickEvent } from "./game-ui";
 import type { NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
@@ -168,8 +168,8 @@ export function RollEnemyAttack(enemyIndex: number) {
 function ListenClickEvents() {
     const enemyCache = GetEnemyCache();
     const buildingCache = GetBuildingCache();
-    window.addEventListener("click_enemy", (e: EnemyClickEvent) => {
-        enemyCache.selected = e.detail.buttonIndex;
+    window.addEventListener("click_enemy", (e: EnemyEvent) => {
+        enemyCache.selected = e.detail.index;
         buildingCache.selected = undefined;
     });
 }

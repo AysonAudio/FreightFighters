@@ -9,12 +9,11 @@ export type Building = Panel & {
     iconURI: string;
 };
 
-export type BuildingSpawn = {
+export type BuildingMsg = {
     building: Building;
     index: number;
 };
-
-export type BuildingSpawnEvent = CustomEvent<BuildingSpawn>;
+export type BuildingEvent = CustomEvent<BuildingMsg>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,13 +122,13 @@ export async function Init(): Promise<boolean> {
 
 /**
  * Spawn a new building.
- * Dispatch a {@link BuildingSpawnEvent} named "spawn_building".
+ * Dispatch a {@link BuildingEvent} named "spawn_building".
  */
 export function SpawnBuilding(type: Building) {
     const cache = GetBuildingCache();
     cache.buildings.push(type);
     window.dispatchEvent(
-        new CustomEvent<BuildingSpawn>("spawn_building", {
+        new CustomEvent<BuildingMsg>("spawn_building", {
             detail: {
                 building: type,
                 index: cache.buildings.length - 1,

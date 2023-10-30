@@ -1,5 +1,10 @@
-import type { Building, BuildingSpawnEvent } from "./game-building";
-import type { Enemy, EnemyEvent, SpawnEnemiesEvent } from "./game-enemy";
+import type { Building, BuildingEvent } from "./game-building";
+import type {
+    Enemy,
+    EnemyMsg,
+    EnemyEvent,
+    SpawnEnemiesEvent,
+} from "./game-enemy";
 import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
@@ -43,12 +48,6 @@ export type ActionClick = {
     action?: Action;
 };
 export type ActionClickEvent = CustomEvent<ActionClick>;
-
-export type EnemyClick = {
-    buttonIndex: number;
-    enemy: Enemy;
-};
-export type EnemyClickEvent = CustomEvent<EnemyClick>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -296,8 +295,8 @@ function SetButtonEvents() {
     const cachePlayer = GetPlayerCache();
 
     // Building Grid //
-    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
-        cacheUI.gridButtons[i].onclick = () => {
+    for (let i = 0; i < cacheUI.gridButtons.length; i++)
+        cacheUI.gridButtons[i].onclick = () =>
             window.dispatchEvent(
                 new CustomEvent<GridMsg>("click_grid", {
                     detail: {
@@ -306,11 +305,9 @@ function SetButtonEvents() {
                     },
                 })
             );
-        };
-    }
 
     // Panel Actions //
-    for (let i = 0; i < cacheUI.panelButtons.length; i++) {
+    for (let i = 0; i < cacheUI.panelButtons.length; i++)
         cacheUI.panelButtons[i].onclick = () => {
             const building = cacheBuilding.buildings[cacheBuilding.selected];
             const enemy = cacheEnemy.enemies[cacheEnemy.selected];
@@ -334,7 +331,6 @@ function SetButtonEvents() {
                 })
             );
         };
-    }
 }
 
 /**
@@ -347,8 +343,8 @@ function SetHoverEvents() {
     const cacheBuilding = GetBuildingCache();
 
     // Building Grid //
-    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
-        cacheUI.gridButtons[i].onmouseenter = () => {
+    for (let i = 0; i < cacheUI.gridButtons.length; i++)
+        cacheUI.gridButtons[i].onmouseenter = () =>
             window.dispatchEvent(
                 new CustomEvent<GridMsg>("hover_grid", {
                     detail: {
@@ -357,8 +353,6 @@ function SetHoverEvents() {
                     },
                 })
             );
-        };
-    }
 }
 
 /**
@@ -371,8 +365,8 @@ function SetUnhoverEvents() {
     const cacheBuilding = GetBuildingCache();
 
     // Building Grid //
-    for (let i = 0; i < cacheUI.gridButtons.length; i++) {
-        cacheUI.gridButtons[i].onmouseleave = () => {
+    for (let i = 0; i < cacheUI.gridButtons.length; i++)
+        cacheUI.gridButtons[i].onmouseleave = () =>
             window.dispatchEvent(
                 new CustomEvent<GridMsg>("unhover_grid", {
                     detail: {
@@ -381,8 +375,6 @@ function SetUnhoverEvents() {
                     },
                 })
             );
-        };
-    }
 }
 
 /**
@@ -397,18 +389,16 @@ function ResetEnemyEvents() {
     const cacheEnemy = GetEnemyCache();
     const cards = cacheUI.fightBarDiv.children;
 
-    for (let i = 0; i < cards.length; i++) {
-        const card = cards[i] as HTMLButtonElement;
-        card.onclick = () =>
+    for (let i = 0; i < cards.length; i++)
+        (cards[i] as HTMLButtonElement).onclick = () =>
             window.dispatchEvent(
-                new CustomEvent<EnemyClick>("click_enemy", {
+                new CustomEvent<EnemyMsg>("click_enemy", {
                     detail: {
-                        buttonIndex: i,
+                        index: i,
                         enemy: cacheEnemy.enemies[i],
                     },
                 })
             );
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -426,7 +416,7 @@ function ListenButtonEvents() {
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "build";
     });
-    window.addEventListener("click_enemy", (e: EnemyClickEvent) => {
+    window.addEventListener("click_enemy", (e: EnemyEvent) => {
         UpdatePanel(e.detail.enemy);
         cache.panelDiv.style.display = "";
         cache.panelDiv.id = "combat";
@@ -437,7 +427,7 @@ function ListenButtonEvents() {
  * Listen for Building onmouseenter events:
  * - Show tooltip.
  */
-function ListenHoverEvents() {
+function ListenBuildingHoverEvents() {
     const cache = GetCacheUI();
     window.addEventListener("hover_grid", (e: GridEvent) => {
         const button = cache.gridButtons[e.detail.buttonIndex];
@@ -503,7 +493,7 @@ function ListenHoverEvents() {
 }
 
 /**
- * Listen for Building onmouseleave events:
+ * Listen for UI onmouseleave events:
  * - Hide tooltip.
  */
 function ListenUnhoverEvents() {
@@ -521,7 +511,7 @@ function ListenUnhoverEvents() {
  */
 function ListenBuildingEvents() {
     const cache = GetCacheUI();
-    window.addEventListener("spawn_building", (e: BuildingSpawnEvent) => {
+    window.addEventListener("spawn_building", (e: BuildingEvent) => {
         cache.gridButtonImgs[e.detail.index].src = e.detail.building.iconURI;
     });
 }
@@ -534,6 +524,9 @@ function ListenBuildingEvents() {
  *     - Slide new cards from off-screen to the left.
  *     - Slide existing cards slightly to the left.
  * - Set onclick:
+ *     - Dispatch a CustomEvent.
+ *     - Other libraries can listen to this event to modularly add button functionality.
+ * - Set onmouseenter:
  *     - Dispatch a CustomEvent.
  *     - Other libraries can listen to this event to modularly add button functionality.
  */
@@ -571,9 +564,9 @@ function ListenEnemySpawnEvents() {
 
             card.onclick = () =>
                 window.dispatchEvent(
-                    new CustomEvent<EnemyClick>("click_enemy", {
+                    new CustomEvent<EnemyMsg>("click_enemy", {
                         detail: {
-                            buttonIndex: e.detail[i].index,
+                            index: e.detail[i].index,
                             enemy: e.detail[i].enemy,
                         },
                     })
@@ -677,7 +670,7 @@ export function Init() {
     SetHoverEvents();
     SetUnhoverEvents();
     ListenButtonEvents();
-    ListenHoverEvents();
+    ListenBuildingHoverEvents();
     ListenUnhoverEvents();
     ListenBuildingEvents();
     ListenEnemySpawnEvents();
