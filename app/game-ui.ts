@@ -500,7 +500,13 @@ function ListenHoverEvents() {
         if (!e.detail.enemy) return;
         const elem = cache.fightBarDiv.children[e.detail.index] as HTMLElement;
         const title = e.detail.enemy.title;
-        const desc = e.detail.enemy.desc;
+        const desc =
+            "Hit Chance: " +
+            e.detail.enemy.hitChance +
+            "%" +
+            "\n" +
+            "Hit Damage: " +
+            e.detail.enemy.hitDamage;
         ShowTooltip(elem, title, desc);
     });
 }
