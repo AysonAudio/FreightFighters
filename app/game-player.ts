@@ -11,6 +11,11 @@ export type Counter = {
     key: string;
     number: number;
 }>;
+export type CounterMsg = {
+    counter: Counter;
+    index: number;
+};
+export type CounterEvent = CustomEvent<CounterMsg>;
 
 /** A JSON object containing counters. */
 interface CounterJSON {

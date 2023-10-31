@@ -5,7 +5,13 @@ import type {
     EnemyEvent,
     SpawnEnemiesEvent,
 } from "./game-enemy";
-import type { PlayerNums, NumVars, NumChangeEvent } from "./game-player";
+import type {
+    PlayerNums,
+    NumVars,
+    NumChangeEvent,
+    CounterMsg,
+    CounterEvent,
+} from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
 import { GetEnemyCache } from "./game-enemy.js";
@@ -67,17 +73,17 @@ type CacheUI = {
      * Unhides and shows details when a building or enemy is clicked on.
      */
     panelDiv: HTMLDivElement;
-    /** Building name. */
+    /** Building/enemy name. */
     panelHeading: HTMLHeadingElement;
-    /** Building portrait. */
+    /** Building/enemy portrait. */
     panelImage: HTMLImageElement;
-    /** Building counters. */
+    /** Building/enemy counters. */
     panelSpans: NodeListOf<HTMLSpanElement>;
-    /** Building description. */
+    /** Building/enemy description. */
     panelParagraph: HTMLParagraphElement;
-    /** Building actions. */
+    /** Building/enemy actions. */
     panelButtons: NodeListOf<HTMLButtonElement>;
-    /** Building action icons. */
+    /** Building/enemy action icons. */
     panelSubimages: NodeListOf<HTMLImageElement>;
 
     /**
@@ -88,9 +94,9 @@ type CacheUI = {
     /** Cloned to spawn a new enemy. */
     enemyTemplate: HTMLTemplateElement;
 
-    /** Wood Display. A player resource counter. */
+    /** Wood Display. UI that shows player resources. */
     woodSpan: HTMLSpanElement;
-    /** Troops Display. A player resource counter. */
+    /** Troops Display. UI that shows player resources. */
     troopsSpan: HTMLSpanElement;
 
     /**
@@ -322,12 +328,14 @@ function ShowTooltip(hovered?: HTMLElement, title?: string, desc?: string) {
     // Move tooltip above or below hovered elem, based on screen space
     if (tooltipVH < 100 - buttonBottomVH - marginVH * 2)
         cache.tooltipDiv.style.top = "" + (buttonBottomVH + marginVH) + "vh";
-    else cache.tooltipDiv.style.bottom = "" + (buttonTopVH + marginVH) + "vh";
+    else
+        cache.tooltipDiv.style.bottom =
+            "" + (100 - buttonTopVH + marginVH) + "vh";
 
     // Set horizontal position, based on screen space
     if (tooltipVW < 100 - buttonLeftVW - marginVW * 2)
         cache.tooltipDiv.style.left = "" + buttonLeftVW + "vw";
-    else cache.tooltipDiv.style.right = "" + (100 - marginVW) + "vw";
+    else cache.tooltipDiv.style.right = "" + (0 + marginVW) + "vw";
 }
 
 /**
@@ -405,6 +413,8 @@ function SetButtonEvents() {
 function SetHoverEvents() {
     const cacheUI = GetCacheUI();
     const cacheBuilding = GetBuildingCache();
+    const cacheEnemy = GetEnemyCache();
+    const cachePlayer = GetPlayerCache();
 
     // Building Grid //
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
@@ -417,6 +427,23 @@ function SetHoverEvents() {
                     },
                 })
             );
+
+    // Panel Counters //
+    for (let i = 0; i < cacheUI.panelSpans.length; i++)
+        cacheUI.panelSpans[i].onmouseenter = () => {
+            const obj =
+                cacheBuilding.selected != undefined
+                    ? cacheBuilding.buildings[cacheBuilding.selected]
+                    : cacheEnemy.enemies[cacheEnemy.selected];
+            window.dispatchEvent(
+                new CustomEvent<CounterMsg>("hover_counter", {
+                    detail: {
+                        index: i,
+                        counter: cachePlayer.counters[obj.counterIDs[i]],
+                    },
+                })
+            );
+        };
 }
 
 /**
@@ -427,6 +454,8 @@ function SetHoverEvents() {
 function SetUnhoverEvents() {
     const cacheUI = GetCacheUI();
     const cacheBuilding = GetBuildingCache();
+    const cacheEnemy = GetEnemyCache();
+    const cachePlayer = GetPlayerCache();
 
     // Building Grid //
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
@@ -439,6 +468,23 @@ function SetUnhoverEvents() {
                     },
                 })
             );
+
+    // Panel Counters //
+    for (let i = 0; i < cacheUI.panelSpans.length; i++)
+        cacheUI.panelSpans[i].onmouseleave = () => {
+            const obj =
+                cacheBuilding.selected != undefined
+                    ? cacheBuilding.buildings[cacheBuilding.selected]
+                    : cacheEnemy.enemies[cacheEnemy.selected];
+            window.dispatchEvent(
+                new CustomEvent<CounterMsg>("unhover_counter", {
+                    detail: {
+                        index: i,
+                        counter: cachePlayer.counters[obj.counterIDs[i]],
+                    },
+                })
+            );
+        };
 }
 
 /**
@@ -508,7 +554,7 @@ function ListenButtonEvents() {
 }
 
 /**
- * Listen for Building and Enemy onmouseenter events:
+ * Listen for Building, Counter, and Enemy onmouseenter events:
  * - Show tooltip.
  */
 function ListenHoverEvents() {
@@ -519,6 +565,12 @@ function ListenHoverEvents() {
         const title = e.detail.building.title;
         const desc = e.detail.building.desc;
         ShowTooltip(elem, title, desc);
+    });
+    window.addEventListener("hover_counter", (e: CounterEvent) => {
+        if (!e.detail.counter) return;
+        const elem = cache.panelSpans[e.detail.index];
+        const desc = e.detail.counter.tooltip;
+        ShowTooltip(elem, undefined, desc);
     });
     window.addEventListener("hover_enemy", (e: EnemyEvent) => {
         if (!e.detail.enemy) return;
@@ -535,12 +587,12 @@ function ListenHoverEvents() {
 }
 
 /**
- * Listen for Building and Enemy onmouseleave events:
+ * Listen for Building, Counter, and Enemy onmouseleave events:
  * - Hide tooltip.
  */
 function ListenUnhoverEvents() {
-    const cache = GetCacheUI();
     window.addEventListener("unhover_grid", () => HideTooltip());
+    window.addEventListener("unhover_counter", () => HideTooltip());
     window.addEventListener("unhover_enemy", () => HideTooltip());
 }
 
