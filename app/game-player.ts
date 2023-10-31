@@ -1,5 +1,5 @@
 import type { ExactlyOne } from "./util";
-import type { ActionClickEvent } from "./game-ui";
+import type { ActionEvent } from "./game-ui";
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ export function AdjustRenew(key: keyof PlayerNums, amount: number) {
  */
 function ListenClickEvents() {
     const cache = GetPlayerCache();
-    window.addEventListener("click_action", (e: ActionClickEvent) => {
+    window.addEventListener("click_action", (e: ActionEvent) => {
         const adjustRenew = e.detail.action.adjustRenew;
         const adjustCurr = e.detail.action.adjustCurr;
 

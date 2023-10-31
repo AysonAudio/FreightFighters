@@ -8,7 +8,7 @@
         "actions": [
             {
                 "title": "Rest",
-                "desc": "+1 HP.\nEnd the day.",
+                "desc": "+1 HP\nEnd the day.",
                 "iconURI": "../vendor/game-icons/backward-time.svg",
                 "adjustCurr": {
                     "days": 1,
@@ -27,7 +27,7 @@
         "actions": [
             {
                 "title": "Punch",
-                "desc": "-1 HP.\n+1 Wood.",
+                "desc": "-1 HP\n+1 Wood",
                 "iconURI": "../vendor/game-icons/punch.svg",
                 "adjustCurr": {
                     "wood": 1,
@@ -39,7 +39,7 @@
             },
             {
                 "title": "Send Lil' Bro",
-                "desc": "-1 Manpower.\n+1 Wood.",
+                "desc": "-1 Manpower\n+1 Wood",
                 "iconURI": "../vendor/game-icons/hiking.svg",
                 "adjustCurr": {
                     "wood": 1,
@@ -60,7 +60,7 @@
         "actions": [
             {
                 "title": "Build a Hut",
-                "desc": "-4 Wood.\n+1 Daily Manpower.",
+                "desc": "-4 Wood\n+1 Daily Manpower",
                 "iconURI": "../vendor/game-icons/hut.svg",
                 "build": ["hut"],
                 "adjustRenew": {

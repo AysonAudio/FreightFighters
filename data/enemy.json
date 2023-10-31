@@ -12,7 +12,7 @@
         "actions": [
             {
                 "title": "Fight",
-                "desc": "-1 Manpower.\nKill enemy.",
+                "desc": "-1 Manpower\nKill enemy.",
                 "iconURI": "../vendor/game-icons/sword-clash.svg",
                 "kill": true,
                 "adjustCurr": {

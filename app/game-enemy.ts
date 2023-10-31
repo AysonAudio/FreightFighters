@@ -1,4 +1,4 @@
-import type { Panel, ActionClickEvent } from "./game-ui";
+import type { Panel, ActionEvent } from "./game-ui";
 import type { NumChangeEvent } from "./game-player";
 
 import { GetBuildingCache } from "./game-building.js";
@@ -184,7 +184,7 @@ function ListenClickEvents() {
  */
 function ListenActionEvents() {
     const cache = GetEnemyCache();
-    window.addEventListener("click_action", (e: ActionClickEvent) => {
+    window.addEventListener("click_action", (e: ActionEvent) => {
         if (e.detail.action?.kill) {
             cache.enemies.splice(e.detail.buttonIndex, 1);
             cache.recentSpawns.splice(e.detail.buttonIndex, 1);

@@ -1,4 +1,4 @@
-import type { Panel, ActionClickEvent } from "./game-ui";
+import type { Panel, ActionEvent } from "./game-ui";
 
 import { GetEnemyCache } from "./game-enemy.js";
 
@@ -100,7 +100,7 @@ function ListenClickEvents() {
  */
 function ListenActionEvents() {
     const cache = GetBuildingCache();
-    window.addEventListener("click_action", (e: ActionClickEvent) => {
+    window.addEventListener("click_action", (e: ActionEvent) => {
         for (const id of e.detail.action.build || [])
             SpawnBuilding(cache.buildingTypes[id]);
     });

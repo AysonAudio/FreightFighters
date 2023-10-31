@@ -43,13 +43,13 @@ export type Panel = {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-export type ActionClick = {
+export type ActionMsg = {
     buttonIndex: number;
     building?: Building;
     enemy?: Enemy;
     action?: Action;
 };
-export type ActionClickEvent = CustomEvent<ActionClick>;
+export type ActionEvent = CustomEvent<ActionMsg>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -355,6 +355,80 @@ function HideTooltip() {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
+function SendBuildingEvent(type: string, i: number) {
+    const buildingCache = GetBuildingCache();
+    window.dispatchEvent(
+        new CustomEvent<BuildingMsg>(type, {
+            detail: {
+                index: i,
+                building: buildingCache.buildings[i],
+            },
+        })
+    );
+}
+
+function SendActionEvent(type: string, i: number, checkReqs: boolean = false) {
+    const buildingCache = GetBuildingCache();
+    const enemyCache = GetEnemyCache();
+    const playerCache = GetPlayerCache();
+
+    const building = buildingCache.buildings[buildingCache.selected];
+    const enemy = enemyCache.enemies[enemyCache.selected];
+    const action = building?.actions[i] || enemy?.actions[i];
+    if (!action) return;
+
+    if (checkReqs) {
+        for (const key in action.min)
+            if (playerCache.current[key] < action.min[key]) return;
+        for (const key in action.max)
+            if (playerCache.current[key] >= action.max[key]) return;
+    }
+
+    window.dispatchEvent(
+        new CustomEvent<ActionMsg>(type, {
+            detail: {
+                buttonIndex: i,
+                building: building,
+                enemy: enemy,
+                action: action,
+            },
+        })
+    );
+}
+
+function SendCounterEvent(type: string, i: number) {
+    const buildingCache = GetBuildingCache();
+    const enemyCache = GetEnemyCache();
+    const playerCache = GetPlayerCache();
+    const obj =
+        buildingCache.selected != undefined
+            ? buildingCache.buildings[buildingCache.selected]
+            : enemyCache.enemies[enemyCache.selected];
+    window.dispatchEvent(
+        new CustomEvent<CounterMsg>(type, {
+            detail: {
+                index: i,
+                counter: playerCache.counters[obj.counterIDs[i]],
+            },
+        })
+    );
+}
+
+function SendEnemyEvent(type: string, i: number) {
+    const enemyCache = GetEnemyCache();
+    window.dispatchEvent(
+        new CustomEvent<EnemyMsg>(type, {
+            detail: {
+                index: i,
+                enemy: enemyCache.enemies[i],
+            },
+        })
+    );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Set onclicks for all static UI buttons.
  * Each button dispatches a CustomEvent onclick.
@@ -362,47 +436,12 @@ function HideTooltip() {
  */
 function SetButtonEvents() {
     const cacheUI = GetCacheUI();
-    const cacheBuilding = GetBuildingCache();
-    const cacheEnemy = GetEnemyCache();
-    const cachePlayer = GetPlayerCache();
-
-    // Building Grid //
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onclick = () =>
-            window.dispatchEvent(
-                new CustomEvent<BuildingMsg>("click_grid", {
-                    detail: {
-                        index: i,
-                        building: cacheBuilding.buildings[i],
-                    },
-                })
-            );
-
-    // Panel Actions //
+            SendBuildingEvent("click_grid", i);
     for (let i = 0; i < cacheUI.panelButtons.length; i++)
-        cacheUI.panelButtons[i].onclick = () => {
-            const building = cacheBuilding.buildings[cacheBuilding.selected];
-            const enemy = cacheEnemy.enemies[cacheEnemy.selected];
-            const action = building?.actions[i] || enemy?.actions[i];
-            if (!action) return;
-
-            // Dont send event if action requirements not met
-            for (const key in action.min)
-                if (cachePlayer.current[key] < action.min[key]) return;
-            for (const key in action.max)
-                if (cachePlayer.current[key] >= action.max[key]) return;
-
-            window.dispatchEvent(
-                new CustomEvent<ActionClick>("click_action", {
-                    detail: {
-                        buttonIndex: i,
-                        building: building,
-                        enemy: enemy,
-                        action: action,
-                    },
-                })
-            );
-        };
+        cacheUI.panelButtons[i].onclick = () =>
+            SendActionEvent("click_action", i, true);
 }
 
 /**
@@ -412,38 +451,15 @@ function SetButtonEvents() {
  */
 function SetHoverEvents() {
     const cacheUI = GetCacheUI();
-    const cacheBuilding = GetBuildingCache();
-    const cacheEnemy = GetEnemyCache();
-    const cachePlayer = GetPlayerCache();
-
-    // Building Grid //
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onmouseenter = () =>
-            window.dispatchEvent(
-                new CustomEvent<BuildingMsg>("hover_grid", {
-                    detail: {
-                        index: i,
-                        building: cacheBuilding.buildings[i],
-                    },
-                })
-            );
-
-    // Panel Counters //
+            SendBuildingEvent("hover_grid", i);
     for (let i = 0; i < cacheUI.panelSpans.length; i++)
-        cacheUI.panelSpans[i].onmouseenter = () => {
-            const obj =
-                cacheBuilding.selected != undefined
-                    ? cacheBuilding.buildings[cacheBuilding.selected]
-                    : cacheEnemy.enemies[cacheEnemy.selected];
-            window.dispatchEvent(
-                new CustomEvent<CounterMsg>("hover_counter", {
-                    detail: {
-                        index: i,
-                        counter: cachePlayer.counters[obj.counterIDs[i]],
-                    },
-                })
-            );
-        };
+        cacheUI.panelSpans[i].onmouseenter = () =>
+            SendCounterEvent("hover_counter", i);
+    for (let i = 0; i < cacheUI.panelButtons.length; i++)
+        cacheUI.panelButtons[i].onmouseenter = () =>
+            SendActionEvent("hover_action", i, false);
 }
 
 /**
@@ -453,38 +469,15 @@ function SetHoverEvents() {
  */
 function SetUnhoverEvents() {
     const cacheUI = GetCacheUI();
-    const cacheBuilding = GetBuildingCache();
-    const cacheEnemy = GetEnemyCache();
-    const cachePlayer = GetPlayerCache();
-
-    // Building Grid //
     for (let i = 0; i < cacheUI.gridButtons.length; i++)
         cacheUI.gridButtons[i].onmouseleave = () =>
-            window.dispatchEvent(
-                new CustomEvent<BuildingMsg>("unhover_grid", {
-                    detail: {
-                        index: i,
-                        building: cacheBuilding.buildings[i],
-                    },
-                })
-            );
-
-    // Panel Counters //
+            SendBuildingEvent("unhover_grid", i);
     for (let i = 0; i < cacheUI.panelSpans.length; i++)
-        cacheUI.panelSpans[i].onmouseleave = () => {
-            const obj =
-                cacheBuilding.selected != undefined
-                    ? cacheBuilding.buildings[cacheBuilding.selected]
-                    : cacheEnemy.enemies[cacheEnemy.selected];
-            window.dispatchEvent(
-                new CustomEvent<CounterMsg>("unhover_counter", {
-                    detail: {
-                        index: i,
-                        counter: cachePlayer.counters[obj.counterIDs[i]],
-                    },
-                })
-            );
-        };
+        cacheUI.panelSpans[i].onmouseleave = () =>
+            SendCounterEvent("unhover_counter", i);
+    for (let i = 0; i < cacheUI.panelButtons.length; i++)
+        cacheUI.panelButtons[i].onmouseleave = () =>
+            SendActionEvent("unhover_action", i, false);
 }
 
 /**
@@ -496,38 +489,12 @@ function SetUnhoverEvents() {
  */
 function ResetEnemyEvents() {
     const cacheUI = GetCacheUI();
-    const cacheEnemy = GetEnemyCache();
     const cards = cacheUI.fightBarDiv.children;
-
     for (let i = 0; i < cards.length; i++) {
         const card = cards[i] as HTMLButtonElement;
-        card.onclick = () =>
-            window.dispatchEvent(
-                new CustomEvent<EnemyMsg>("click_enemy", {
-                    detail: {
-                        index: i,
-                        enemy: cacheEnemy.enemies[i],
-                    },
-                })
-            );
-        card.onmouseenter = () =>
-            window.dispatchEvent(
-                new CustomEvent<EnemyMsg>("hover_enemy", {
-                    detail: {
-                        index: i,
-                        enemy: cacheEnemy.enemies[i],
-                    },
-                })
-            );
-        card.onmouseleave = () =>
-            window.dispatchEvent(
-                new CustomEvent<EnemyMsg>("unhover_enemy", {
-                    detail: {
-                        index: i,
-                        enemy: cacheEnemy.enemies[i],
-                    },
-                })
-            );
+        card.onclick = () => SendEnemyEvent("click_enemy", i);
+        card.onmouseenter = () => SendEnemyEvent("hover_enemy", i);
+        card.onmouseleave = () => SendEnemyEvent("unhover_enemy", i);
     }
 }
 
@@ -554,7 +521,7 @@ function ListenButtonEvents() {
 }
 
 /**
- * Listen for Building, Counter, and Enemy onmouseenter events:
+ * Listen for onmouseenter events from Enemies and all static UI elems:
  * - Show tooltip.
  */
 function ListenHoverEvents() {
@@ -571,6 +538,13 @@ function ListenHoverEvents() {
         const elem = cache.panelSpans[e.detail.index];
         const desc = e.detail.counter.tooltip;
         ShowTooltip(elem, undefined, desc);
+    });
+    window.addEventListener("hover_action", (e: ActionEvent) => {
+        if (!e.detail.action) return;
+        const elem = cache.panelButtons[e.detail.buttonIndex];
+        const title = e.detail.action.title;
+        const desc = e.detail.action.desc;
+        ShowTooltip(elem, title, desc);
     });
     window.addEventListener("hover_enemy", (e: EnemyEvent) => {
         if (!e.detail.enemy) return;
@@ -593,6 +567,7 @@ function ListenHoverEvents() {
 function ListenUnhoverEvents() {
     window.addEventListener("unhover_grid", () => HideTooltip());
     window.addEventListener("unhover_counter", () => HideTooltip());
+    window.addEventListener("unhover_action", () => HideTooltip());
     window.addEventListener("unhover_enemy", () => HideTooltip());
 }
 
