@@ -15,6 +15,8 @@ import { GetPlayerCache } from "./game-player.js";
 ////////////////////////////////////////////////////////////////////////////////
 
 export type Action = {
+    title: string;
+    desc: string;
     iconURI: string;
     build?: string[];
     kill?: boolean;
@@ -280,7 +282,9 @@ function UpdatePanel(obj?: Building | Enemy | undefined) {
 /**
  * Show a tooltip above a hovered element.
  */
-function ShowTooltip(hovered: HTMLElement, title?: string, desc?: string) {
+function ShowTooltip(hovered?: HTMLElement, title?: string, desc?: string) {
+    if (!hovered) return;
+
     const cache = GetCacheUI();
     const hoveredRect = hovered.getBoundingClientRect();
     let buttonBottomVH: number;
@@ -438,10 +442,10 @@ function SetUnhoverEvents() {
 }
 
 /**
- * Reset onclicks for all existing enemy card buttons.
- * Dispatches a CustomEvent onclick.
- * Other libraries can listen to this event to modularly add button functionality.
- *
+ * For all existing enemy card buttons:
+ * - Reset onclicks
+ * - Reset onmouseenters
+ * - Reset onmouseleaves
  * Run this after splicing an enemy and enemy card to reset button indices.
  */
 function ResetEnemyEvents() {
@@ -449,8 +453,9 @@ function ResetEnemyEvents() {
     const cacheEnemy = GetEnemyCache();
     const cards = cacheUI.fightBarDiv.children;
 
-    for (let i = 0; i < cards.length; i++)
-        (cards[i] as HTMLButtonElement).onclick = () =>
+    for (let i = 0; i < cards.length; i++) {
+        const card = cards[i] as HTMLButtonElement;
+        card.onclick = () =>
             window.dispatchEvent(
                 new CustomEvent<EnemyMsg>("click_enemy", {
                     detail: {
@@ -459,6 +464,25 @@ function ResetEnemyEvents() {
                     },
                 })
             );
+        card.onmouseenter = () =>
+            window.dispatchEvent(
+                new CustomEvent<EnemyMsg>("hover_enemy", {
+                    detail: {
+                        index: i,
+                        enemy: cacheEnemy.enemies[i],
+                    },
+                })
+            );
+        card.onmouseleave = () =>
+            window.dispatchEvent(
+                new CustomEvent<EnemyMsg>("unhover_enemy", {
+                    detail: {
+                        index: i,
+                        enemy: cacheEnemy.enemies[i],
+                    },
+                })
+            );
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +523,6 @@ function ListenHoverEvents() {
     window.addEventListener("hover_enemy", (e: EnemyEvent) => {
         if (!e.detail.enemy) return;
         const elem = cache.fightBarDiv.children[e.detail.index] as HTMLElement;
-        const title = e.detail.enemy.title;
         const desc =
             "Hit Chance: " +
             e.detail.enemy.hitChance +
@@ -507,7 +530,7 @@ function ListenHoverEvents() {
             "\n" +
             "Hit Damage: " +
             e.detail.enemy.hitDamage;
-        ShowTooltip(elem, title, desc);
+        ShowTooltip(elem, undefined, desc);
     });
 }
 
@@ -617,6 +640,7 @@ function ListenEnemySpawnEvents() {
 
 /**
  * Listen for Enemy kill event:
+ * - Clean up events.
  * - Delete Enemy card elem.
  * - Animate: slide remaining cards to new positions.
  * - Update button indices in enemy card onclicks.
@@ -632,7 +656,13 @@ function ListenEnemyKillEvents() {
 
     window.addEventListener("kill_enemy", (e: EnemyEvent) => {
         let cardCount: number;
-        let killedCard = cache.fightBarDiv.children[e.detail.index];
+        let killedCard = <HTMLButtonElement>(
+            cache.fightBarDiv.children[e.detail.index]
+        );
+
+        killedCard.removeEventListener("click", killedCard.onclick);
+        killedCard.removeEventListener("mouseenter", killedCard.onmouseenter);
+        killedCard.removeEventListener("mouseleave", killedCard.onmouseleave);
 
         cache.fightBarDiv.removeChild(killedCard);
         killedCard.remove();

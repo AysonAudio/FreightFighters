@@ -37,11 +37,11 @@
             "required": ["title", "desc", "portraitURI"],
             "properties": {
                 "title": {
-                    "description": "Panel title.",
+                    "description": "Panel title. Sometimes tooltip title.",
                     "type": "string"
                 },
                 "desc": {
-                    "description": "Panel desc.",
+                    "description": "Panel desc. Sometimes tooltip desc.",
                     "type": "string"
                 },
                 "portraitURI": {
@@ -68,12 +68,21 @@
                         "type": "object",
                         "additionalProperties": false,
 
-                        "required": ["iconURI"],
+                        "required": ["title", "desc", "iconURI"],
                         "properties": {
+                            "title": {
+                                "description": "Tooltip title.",
+                                "type": "string"
+                            },
+                            "desc": {
+                                "description": "Tooltip desc.",
+                                "type": "string"
+                            },
                             "iconURI": {
                                 "description": "Button image.",
                                 "type": "string"
                             },
+
                             "build": {
                                 "description": "Action spawns buildings.",
                                 "type": "array",
@@ -102,6 +111,7 @@
                                     { "$ref": "#/definitions/resourceSheet" }
                                 ]
                             },
+
                             "min": {
                                 "description": "Action requires resource minimums.",
                                 "unevaluatedProperties": false,
