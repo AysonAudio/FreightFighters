@@ -36,10 +36,6 @@ body {
 
 /* ------------------------ */
 
-#main-menu > .logo {
-    margin-top: 25vh;
-}
-
 #main-menu > .logo > .title {
     color: #e36245;
     font-variant: small-caps;
@@ -81,12 +77,17 @@ body {
     gap: 1vh 1vw;
 }
 
-/* Buttons without text */
 #main-menu button {
     box-sizing: border-box;
+    transition-duration: 0.4s;
+    width: fit-content;
 }
 
-/* Buttons with text */
+#main-menu button.font:hover {
+    cursor: pointer;
+    color: rosybrown;
+}
+
 #main-menu button.font {
     background: none;
     border: none;
